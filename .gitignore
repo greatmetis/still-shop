@@ -1,0 +1,33 @@
+# dependencies
+node_modules/
+
+# build and test output
+dist/
+coverage/
+*.tsbuildinfo
+
+# env files
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+*.log
+.vercel
+
+# test cache
+.vitest/
+
+# editor config (personal)
+.vscode/
+
+# private: learning notes, plans and team reports stay on this computer only
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+IDEA.md
+PROJECT_PLAN.md
+reports/
+docs/learning/
+docs/notes.md

@@ -1,0 +1,168 @@
+/*
+ * motion.css: ALL the animation in the shop lives here (design spec section 5).
+ * docs/animation-guide.md explains every block step by step.
+ *
+ * Two rules that make this file safe:
+ *  1. The normal (un-animated) styles are the FINISHED look. Animations use
+ *     `backwards` fill, which only applies the "from" state while waiting to start.
+ *     So if animation is turned off, the page is still complete and correct.
+ *  2. Everything that moves is switched off in the reduced-motion block at the bottom.
+ *
+ * Tokens (--ease-soft, --duration-*, --stagger) are defined in src/index.css.
+ * Note: we use var(--surface) (not var(--color-surface)) because Tailwind's
+ * `@theme inline` colours are not real CSS variables.
+ */
+
+/* ---------------------------------------------------------------------------
+ * 1. Shared fade-up (spec 5.2 / 5.4)
+ * Moves an element up 16px while it fades in. Used by .intro-fade and .fade-in.
+ * --------------------------------------------------------------------------- */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------------------------------------------------------------------------
+ * 2. Intro: "the dot becomes the wordmark" (spec 5.2), about 2.6 seconds.
+ * Only runs when Wordmark has data-intro="true" (the playIntro prop).
+ * Four things happen, each with its own delay:
+ *   a) the dot grows into a big circle, then shrinks to full-stop size
+ *   b) the whole track slides so the dot starts in the middle and ends at the right
+ *   c) the letters are uncovered from the dot's side with a clip-path "curtain"
+ *   d) the tagline and catalog fade up (.intro-fade, below)
+ * --------------------------------------------------------------------------- */
+.wordmark[data-intro='true'] .wordmark__dot {
+  animation: intro-dot 1200ms var(--ease-soft) 200ms backwards;
+}
+.wordmark[data-intro='true'] .wordmark__track {
+  animation: intro-track var(--duration-slow) var(--ease-soft) 1000ms backwards;
+}
+.wordmark[data-intro='true'] .wordmark__letters {
+  animation: intro-letters var(--duration-slow) var(--ease-soft) 1000ms backwards;
+}
+
+/* Dot: 0 -> big circle (7 x its size) -> hold -> back to 1 x. */
+@keyframes intro-dot {
+  0%   { transform: scale(0); }
+  45%  { transform: scale(7); }
+  60%  { transform: scale(7); }
+  100% { transform: scale(1); }
+}
+
+/* Track: starts shifted left so the DOT is centred on the page, then glides to its real place.
+   -50% = half the track's own width; + 0.08em = half the dot, so the dot's centre is the pivot. */
+@keyframes intro-track {
+  from { transform: translateX(calc(-50% + 0.08em)); }
+  to   { transform: translateX(0); }
+}
+
+/* Letters: a curtain opens from the dot's side (the right). inset(top right bottom left).
+   The -0.2em top/bottom keeps tall letters from being clipped (the line-height is only 0.9). */
+@keyframes intro-letters {
+  from { clip-path: inset(-0.2em 0 -0.2em 100%); }
+  to   { clip-path: inset(-0.2em 0 -0.2em 0); }
+}
+
+/* Tagline / toolbar / header wordmark fade up after the wordmark. Set the wait with
+   style="--delay: 2000ms". Without the class (playIntro false) the page is simply still. */
+.intro-fade {
+  animation: fade-up var(--duration-slow) var(--ease-soft) var(--delay, 0ms) backwards;
+}
+
+/* ---------------------------------------------------------------------------
+ * 3. Card reveal on mount (spec 5.4)
+ * Each image is uncovered from the bottom (clip-path) while it settles from 106% to 100%.
+ * Delay = --intro-delay (set by the page when the intro plays) + card number x 60ms,
+ * so cards appear one after another.  --i is set on each card (capped at 11).
+ * --------------------------------------------------------------------------- */
+.card__media img {
+  animation: reveal-up var(--duration-slow) var(--ease-soft)
+    calc(var(--intro-delay, 0ms) + var(--i, 0) * var(--stagger)) backwards;
+  /* ---- 4. Hover zoom (below) needs a transition on the same element ---- */
+  transition: transform var(--duration-slow) var(--ease-soft);
+}
+@keyframes reveal-up {
+  from { clip-path: inset(100% 0 0 0); transform: scale(1.06); }
+  to   { clip-path: inset(0 0 0 0);    transform: scale(1); }
+}
+
+/* Badges (discount, stock) sit on top of the image, so they fade in with the SAME delay as the
+   image reveal. Without this they would show over an empty grey box before the image appears. */
+.card__badges {
+  animation: badge-fade var(--duration-slow) var(--ease-soft)
+    calc(var(--intro-delay, 0ms) + var(--i, 0) * var(--stagger)) backwards;
+}
+@keyframes badge-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ---------------------------------------------------------------------------
+ * 4. Card hover / keyboard focus (spec 5.4)
+ * Image zooms slowly to 104%. The title gets an underline that grows from the left:
+ * a 1px tall background gradient whose WIDTH animates from 0 to 100%.
+ * :focus-within does the same for keyboard users. :active is a quick "press" (120ms).
+ * --------------------------------------------------------------------------- */
+.card:hover .card__media img,
+.card:focus-within .card__media img {
+  transform: scale(1.04);
+}
+.card__title {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size var(--duration-fast) var(--ease-soft);
+}
+.card:hover .card__title,
+.card:focus-within .card__title {
+  background-size: 100% 1px;
+}
+.card__media {
+  transition: transform var(--duration-instant) var(--ease-soft);
+}
+.card:active .card__media {
+  transform: scale(0.99);
+}
+
+/* ---------------------------------------------------------------------------
+ * 5. Skeleton pulse (spec 5.4)
+ * Grey placeholder boxes fade between full and 55% opacity, forever, back and forth
+ * (`alternate`). Linear easing so the pulse feels even, not bouncy.
+ * --------------------------------------------------------------------------- */
+.skeleton {
+  background: var(--surface);
+  animation: skeleton-pulse 1400ms linear infinite alternate;
+}
+@keyframes skeleton-pulse {
+  from { opacity: 1; }
+  to   { opacity: 0.55; }
+}
+
+/* Loaded content replaces skeletons: a quick fade-up (600ms). */
+.fade-in {
+  animation: fade-up var(--duration-medium) var(--ease-soft) backwards;
+}
+
+/* ---------------------------------------------------------------------------
+ * 6. Reduced motion (spec 5.5)
+ * People who ask their OS for less motion get no movement. Animations and transitions
+ * are shortened to 1ms (not removed, so they still "finish" and nothing stays hidden).
+ * --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .card:hover .card__media img,
+  .card:focus-within .card__media img {
+    transform: none;
+  }
+  .card:active .card__media {
+    transform: none;
+  }
+  .skeleton {
+    animation: none;
+  }
+}

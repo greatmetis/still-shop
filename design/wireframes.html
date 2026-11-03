@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Still. Product Shop: wireframes and visual design (draft for approval)</title>
+<!-- Fonts: the only external request. Offline, the page falls back to Georgia / system sans. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   1. TOKENS (same values as design-spec.md)
+   ========================================================= */
+:root{
+  --ease-soft:cubic-bezier(0.15,0.9,0.34,0.95);
+  --d-slow:1400ms; --d-page:900ms; --d-med:600ms; --d-exit:350ms; --d-fast:240ms; --d-instant:120ms; --stagger:60ms;
+  --serif:"Instrument Serif", ui-serif, Georgia, "Times New Roman", Times, serif;
+  --sans:"Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+.doc{
+  --bg:#FFFFFF; --surface:#F5F4F1; --surface-sunken:#ECEAE6;
+  --text:#111111; --text-muted:#6B6B6B; --line:#BDBBB6; --border:#8A8782;
+  --primary:#111111; --primary-hover:#333333; --on-primary:#FFFFFF; --focus:#111111;
+  --success:#2F6B3A; --warning:#8A5A00; --danger:#B42318;
+  --star:#111111; --star-empty:#BDBBB6;
+  --chrome-bg:#E7E6E2; --chrome-text:#111111; --chrome-muted:#5E5E5E; --chrome-card:#F6F5F2;
+}
+#dark:checked ~ .doc{
+  --bg:#0E0E0D; --surface:#1A1A18; --surface-sunken:#252523;
+  --text:#F2F1EE; --text-muted:#9C9A95; --line:#3A3936; --border:#75736E;
+  --primary:#F2F1EE; --primary-hover:#D9D7D2; --on-primary:#0E0E0D; --focus:#F2F1EE;
+  --success:#7FC48D; --warning:#E0B460; --danger:#FF8A80;
+  --star:#F2F1EE; --star-empty:#3A3936;
+  --chrome-bg:#000000; --chrome-text:#F2F1EE; --chrome-muted:#A8A6A1; --chrome-card:#151514;
+}
+
+/* =========================================================
+   2. DOCUMENT CHROME (not part of the product)
+   ========================================================= */
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans)}
+.ctl{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.doc{background:var(--chrome-bg);color:var(--chrome-text);min-height:100vh;padding:32px 32px 120px;transition:background var(--d-fast) var(--ease-soft)}
+.doc-head{max-width:1280px;margin:0 auto 48px}
+.doc-head h1{font-family:var(--serif);font-weight:400;font-size:56px;line-height:1;margin:0 0 12px;letter-spacing:-.01em}
+.doc-head p{max-width:72ch;color:var(--chrome-muted);margin:0 0 8px;line-height:1.55}
+.toc{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:20px;font-size:14px}
+.toc a{color:inherit}
+.toggle{position:fixed;top:16px;right:16px;z-index:10;display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;background:var(--chrome-text);color:var(--chrome-bg);font:500 14px var(--sans);cursor:pointer;user-select:none}
+#dark:focus-visible ~ .doc .toggle{outline:2px solid var(--chrome-text);outline-offset:2px}
+.toggle .off{display:none}
+#dark:checked ~ .doc .toggle .on{display:none}
+#dark:checked ~ .doc .toggle .off{display:inline}
+.sec{max-width:1720px;margin:0 auto 96px}
+.sec > h2{font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.1;margin:0 0 8px}
+.sec > p.note{max-width:80ch;color:var(--chrome-muted);margin:0 0 24px;line-height:1.55}
+.flab{font:500 12px/1.4 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--chrome-muted);margin:0 0 8px}
+.scroll{overflow-x:auto;padding-bottom:16px}
+.row{display:flex;gap:40px;align-items:flex-start}
+.row.wrap-row{flex-wrap:wrap}
+.panel{background:var(--chrome-card);padding:24px;border-radius:2px}
+.replay{display:inline-flex;align-items:center;height:44px;padding:0 20px;background:var(--chrome-text);color:var(--chrome-bg);font:500 14px var(--sans);cursor:pointer;margin:0 0 20px}
+#replay:focus-visible + .replay{outline:2px solid var(--chrome-text);outline-offset:2px}
+#replay:checked ~ .copyA{display:none}
+#replay:not(:checked) ~ .copyB{display:none}
+.flow{display:grid;gap:8px;font-size:15px;line-height:1.5;max-width:900px}
+.flow li{margin-bottom:6px}
+.flow code{font-size:13px}
+
+/* =========================================================
+   3. PRODUCT UI (this is what the app looks like)
+   Frames are size containers, so @container mimics real breakpoints:
+   768px = md, 1024px = lg.
+   ========================================================= */
+.f{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.55;container-type:inline-size;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.08);transition:background var(--d-fast) var(--ease-soft),color var(--d-fast) var(--ease-soft)}
+.f.desk{width:1280px;flex:none}
+.f.mob{width:375px;flex:none}
+.f.mid{width:960px;flex:none}
+.f *:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.f h1,.f h2,.f h3,.f p{margin:0}
+.wrap{max-width:1440px;margin:0 auto;padding-inline:20px}
+@container (min-width:768px){.wrap{padding-inline:32px}}
+@container (min-width:1024px){.wrap{padding-inline:48px}}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cap{font-size:12px;line-height:1.4;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
+.muted{color:var(--text-muted)}
+
+/* Links */
+.lnk{color:inherit;text-decoration:none;font-size:14px;font-weight:500;display:inline-flex;align-items:center;min-height:44px;
+  background:linear-gradient(currentColor,currentColor) 0 calc(50% + 0.65em)/0 1px no-repeat;transition:background-size var(--d-fast) var(--ease-soft)}
+.lnk:hover,.lnk[aria-current]{background-size:100% 1px}
+.lnk:active{opacity:.7}
+
+/* Header */
+.hdr{border-bottom:1px solid var(--line);background:var(--bg)}
+.hdr-in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:56px}
+@container (min-width:768px){.hdr-in{height:64px}}
+.hdr-in .r{justify-self:end}
+.wm-sm{display:inline-block;font-family:var(--serif);font-weight:400;font-size:24px;line-height:1;letter-spacing:-.01em;color:inherit;text-decoration:none;padding:10px 4px}
+@container (min-width:768px){.wm-sm{font-size:28px}}
+.dot{display:inline-block;width:.16em;height:.16em;border-radius:9999px;background:currentColor;margin-left:.03em}
+
+/* Hero + wordmark */
+.hero{min-height:360px;display:grid;place-content:center;justify-items:center;text-align:center;gap:20px;padding-block:48px;overflow:hidden}
+@container (min-width:1024px){.hero{min-height:520px;gap:28px}}
+.wm{font-family:var(--serif);font-weight:400;font-size:88px;line-height:.9;letter-spacing:-.02em}
+@container (min-width:1024px){.wm{font-size:176px}}
+.track{display:inline-flex;align-items:baseline}
+.letters{display:inline-block}
+.tagline{color:var(--text-muted);font-size:16px}
+
+/* --- Intro animation (exact spec, section 5.2) --- */
+.wm[data-intro] .dot{animation:intro-dot 1200ms var(--ease-soft) 200ms backwards}
+.wm[data-intro] .track{animation:intro-track 1400ms var(--ease-soft) 1000ms backwards}
+.wm[data-intro] .letters{animation:intro-letters 1400ms var(--ease-soft) 1000ms backwards}
+@keyframes intro-dot{0%{transform:scale(0)}45%{transform:scale(7)}60%{transform:scale(7)}100%{transform:scale(1)}}
+@keyframes intro-track{from{transform:translateX(calc(-50% + 0.08em))}to{transform:translateX(0)}}
+@keyframes intro-letters{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0 0 0 0)}}
+.intro-fade{animation:fade-up 1400ms var(--ease-soft) var(--delay,0ms) backwards}
+@keyframes fade-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* Toolbar */
+.tb{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;align-items:end}
+.tb .search{grid-column:1/-1}
+@container (min-width:1024px){
+  .tb{grid-template-columns:minmax(0,440px) 1fr 220px 220px;gap:24px}
+  .tb .search{grid-column:1}.tb .cat{grid-column:3}.tb .sort{grid-column:4}
+}
+.lbl{display:block;font-size:12px;line-height:1.4;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.box{position:relative;color:var(--text)}
+.ctrl{display:block;width:100%;height:44px;margin:0;border:1px solid var(--border);border-radius:0;background:var(--bg);color:var(--text);font:400 16px/1 var(--sans);padding:0 40px 0 12px;appearance:none;-webkit-appearance:none;transition:border-color var(--d-fast) var(--ease-soft)}
+.ctrl::placeholder{color:var(--text-muted);opacity:1}
+.ctrl::-webkit-search-cancel-button{-webkit-appearance:none}
+.ctrl:hover{border-color:var(--text)}
+.f .ctrl:focus-visible,.ctrl.is-focus{border-color:var(--text);outline:2px solid var(--focus);outline-offset:2px}
+.ctrl:disabled{opacity:.4;cursor:not-allowed}
+.ctrl.is-hover{border-color:var(--text)}
+.box.search-box .ctrl{padding-left:40px}
+.ico{position:absolute;left:12px;top:14px;color:var(--text-muted);pointer-events:none}
+.clr{position:absolute;right:0;top:0;width:44px;height:44px;border:0;background:none;color:var(--text-muted);font:400 20px/1 var(--sans);cursor:pointer;transition:color var(--d-fast) var(--ease-soft)}
+.clr:hover{color:var(--text)}
+.sel::after{content:"";position:absolute;right:16px;top:50%;width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-70%) rotate(45deg);pointer-events:none}
+
+/* Result count */
+.count{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;margin-top:20px;min-height:44px;font-size:14px;color:var(--text-muted)}
+.count b{color:var(--text);font-weight:500;font-variant-numeric:tabular-nums}
+.count q{color:var(--text);quotes:"\201C" "\201D"}
+.count .lnk{color:var(--text)}
+
+/* Product grid + card */
+.grid{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 16px}
+@container (min-width:768px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:40px 24px}}
+@container (min-width:1024px){.grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:48px 24px}}
+.card{display:block;color:inherit;text-decoration:none;cursor:pointer}
+.f .card:focus-visible{outline-offset:4px}
+.media{position:relative;aspect-ratio:4/5;background:var(--surface);overflow:hidden;transition:transform var(--d-instant) var(--ease-soft)}
+.img{position:absolute;inset:0;display:grid;place-items:center;
+  animation:reveal-up var(--d-slow) var(--ease-soft) calc(var(--i,0) * var(--stagger)) backwards;
+  transition:transform var(--d-slow) var(--ease-soft)}
+.img::after{content:"";width:46%;aspect-ratio:3/4;background:var(--surface-sunken);border-radius:4px}
+.s2::after{width:50%;aspect-ratio:1;border-radius:9999px}
+.s3::after{width:30%;aspect-ratio:1/2;border-radius:40% 40% 6px 6px}
+.s4::after{width:62%;aspect-ratio:4/3;border-radius:6px}
+.s5::after{width:40%;aspect-ratio:1/1.2;border-radius:0 0 40% 40%}
+@keyframes reveal-up{from{clip-path:inset(100% 0 0 0);transform:scale(1.06)}to{clip-path:inset(0 0 0 0);transform:scale(1)}}
+.card:hover .img,.card:focus-visible .img{transform:scale(1.04)}
+.card:active .media{transform:scale(.99)}
+.card.out .img{opacity:.6}
+.badge{display:inline-block;font:500 12px/1.4 var(--sans);letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;background:var(--primary);color:var(--on-primary)}
+.media .badge{position:absolute;top:12px;left:12px}
+.chip{position:absolute;top:12px;right:12px;padding:4px 8px;background:color-mix(in srgb,var(--bg) 90%,transparent)}
+.stock{display:inline-flex;align-items:center;gap:6px;font:500 12px/1.4 var(--sans);letter-spacing:.06em;text-transform:uppercase}
+.stock::before{content:"";width:8px;height:8px;border-radius:9999px;background:currentColor}
+.stock.ok{color:var(--success)}.stock.low{color:var(--warning)}.stock.no{color:var(--danger)}
+.meta{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;margin-top:12px;align-items:start}
+.ttl{font-size:15px;font-weight:500;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@container (min-width:1024px){.ttl{font-size:16px}}
+.ttl span{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size var(--d-fast) var(--ease-soft)}
+.card:hover .ttl span,.card:focus-visible .ttl span{background-size:100% 1px}
+.price{font-size:15px;font-weight:500;line-height:1.35;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.price s{display:block;font-size:13px;font-weight:400;color:var(--text-muted)}
+.meta .cap{align-self:center}
+
+/* Rating stars */
+.rate{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rate .n{color:var(--text-muted);font-weight:400}
+.stars{position:relative;display:inline-block;font-size:12px;line-height:1;letter-spacing:1px;color:var(--star-empty)}
+.stars::before{content:"\2605\2605\2605\2605\2605"}
+.stars::after{content:"\2605\2605\2605\2605\2605";position:absolute;left:0;top:0;width:var(--r,0%);overflow:hidden;white-space:nowrap;color:var(--star)}
+.rate.md{font-size:14px}.rate.md .stars{font-size:16px}
+
+/* Pagination */
+.pg{display:flex;justify-content:center;margin-top:64px}
+.pg ol{display:flex;align-items:center;gap:4px;list-style:none;margin:0;padding:0}
+.pg a,.pg span{min-width:44px;height:44px;padding:0 12px;display:inline-grid;place-items:center;font-size:14px;font-weight:500;font-variant-numeric:tabular-nums;color:inherit;text-decoration:none;transition:background var(--d-fast) var(--ease-soft)}
+.pg a:hover,.pg a.is-hover{background:var(--surface)}
+.pg a:active{transform:scale(.97)}
+.pg [aria-current]{background:var(--primary);color:var(--on-primary)}
+.pg a[aria-current]:hover{background:var(--primary-hover)}
+.pg .dis{opacity:.4}
+.pg .num{display:none}
+.pg .pos{color:var(--text-muted);font-weight:400;padding:0 8px}
+@container (min-width:768px){.pg .num{display:list-item}.pg .pos{display:none}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 20px;font:500 14px/1 var(--sans);border:1px solid transparent;border-radius:0;cursor:pointer;text-decoration:none;
+  transition:background var(--d-fast) var(--ease-soft),border-color var(--d-fast) var(--ease-soft),transform var(--d-instant) var(--ease-soft)}
+.btn-p{background:var(--primary);color:var(--on-primary)}
+.btn-p:hover,.btn-p.is-hover{background:var(--primary-hover)}
+.btn-s{background:transparent;color:var(--text);border-color:var(--border)}
+.btn-s:hover,.btn-s.is-hover{background:var(--surface);border-color:var(--text)}
+.btn:active,.btn.is-active{transform:scale(.98)}
+.btn.is-focus{outline:2px solid var(--focus);outline-offset:2px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-p:disabled:hover{background:var(--primary)}
+
+/* States */
+.state{max-width:480px;margin:0 auto;padding-block:64px;text-align:center;display:grid;justify-items:center;gap:16px}
+@container (min-width:1024px){.state{padding-block:96px;gap:20px}}
+.state .mk{width:12px;height:12px;border-radius:9999px;background:var(--text)}
+.state .mk.err{background:var(--danger)}
+.state h2,.state h1{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.1;letter-spacing:-.01em}
+@container (min-width:1024px){.state h2{font-size:36px}.state h1{font-size:52px;line-height:1.05}}
+.state p{color:var(--text-muted);max-width:40ch}
+.state .btn{margin-top:8px}
+
+/* Skeletons */
+.sk{background:var(--surface);animation:pulse 1400ms linear infinite alternate}
+@keyframes pulse{from{opacity:1}to{opacity:.55}}
+.sk-media{aspect-ratio:4/5}
+.sk-bar{height:16px;margin-top:12px}
+.sk-bar.sm{height:12px;margin-top:8px}
+
+/* Footer */
+.ftr{border-top:1px solid var(--line);margin-top:96px}
+.ftr .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding-block:24px;font-size:12px;color:var(--text-muted)}
+
+/* Detail page */
+.back{margin-top:16px}
+.pd{display:grid;gap:32px;margin-top:8px}
+@container (min-width:1024px){
+  .pd{grid-template-columns:repeat(12,minmax(0,1fr));gap:24px;margin-top:16px}
+  .pd .gal{grid-column:1/8}
+  .pd .sum{grid-column:8/13;position:sticky;top:24px;align-self:start;padding-left:24px}
+  .pd .rev{grid-column:1/9}
+}
+.gmain{position:relative;aspect-ratio:1/1;background:var(--surface);margin-inline:-20px;overflow:hidden}
+@container (min-width:768px){.gmain{margin-inline:0}}
+.gi{position:absolute;inset:0;display:none;place-items:center;animation:fade-up var(--d-med) var(--ease-soft) backwards}
+.gi::after{content:"";background:var(--surface-sunken)}
+.gi1::after{width:34%;aspect-ratio:1/1.05;border-radius:8px 8px 40% 40%}
+.gi2::after{width:44%;aspect-ratio:1;border-radius:9999px}
+.gi3::after{width:56%;aspect-ratio:4/3;border-radius:8px}
+.gi4::after{width:26%;aspect-ratio:1/1.6;border-radius:40% 40% 8px 8px}
+.gi .n{position:absolute;right:16px;bottom:12px;font-size:12px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+.r1:checked ~ .gmain .gi1,.r2:checked ~ .gmain .gi2,.r3:checked ~ .gmain .gi3,.r4:checked ~ .gmain .gi4{display:grid}
+.thumbs{display:flex;gap:8px;margin-top:12px;overflow-x:auto;scroll-snap-type:x mandatory}
+.th{position:relative;flex:none;width:64px;height:64px;background:var(--surface);border:1px solid transparent;border-radius:2px;cursor:pointer;scroll-snap-align:start;display:grid;place-items:center;transition:border-color var(--d-fast) var(--ease-soft),transform var(--d-instant) var(--ease-soft)}
+@container (min-width:1024px){.th{width:80px;height:80px}}
+.th::after{content:"";width:40%;aspect-ratio:1;background:var(--surface-sunken);border-radius:3px}
+.th:nth-child(2)::after{border-radius:9999px}
+.th:hover{border-color:var(--line)}
+.th:active{transform:scale(.97)}
+.r1:checked ~ .thumbs .t1,.r2:checked ~ .thumbs .t2,.r3:checked ~ .thumbs .t3,.r4:checked ~ .thumbs .t4{border:2px solid var(--text)}
+.r1:focus-visible ~ .thumbs .t1,.r2:focus-visible ~ .thumbs .t2,.r3:focus-visible ~ .thumbs .t3,.r4:focus-visible ~ .thumbs .t4{outline:2px solid var(--focus);outline-offset:2px}
+.sum{display:grid;gap:16px;align-content:start}
+.sum h1{font-family:var(--serif);font-weight:400;font-size:36px;line-height:1.05;letter-spacing:-.01em}
+@container (min-width:1024px){.sum h1{font-size:52px}}
+.plg{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;font-variant-numeric:tabular-nums}
+.plg .now{font-size:24px;font-weight:500;line-height:1.2}
+@container (min-width:1024px){.plg .now{font-size:28px}}
+.plg s{color:var(--text-muted)}
+.plg .badge{align-self:center}
+.desc{max-width:65ch}
+.dl{display:grid;grid-template-columns:auto 1fr;margin:8px 0 0;border-top:1px solid var(--line)}
+.dl dt,.dl dd{margin:0;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.dl dt{font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);padding-right:24px;align-self:stretch;display:flex;align-items:center}
+.rev{margin-top:32px}
+@container (min-width:1024px){.rev{margin-top:64px}}
+.rev-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
+.rev-head h2{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.1}
+@container (min-width:1024px){.rev-head h2{font-size:36px}}
+.rev ul{list-style:none;margin:0;padding:0}
+.rev li{border-top:1px solid var(--line);padding-block:24px;display:grid;gap:8px}
+.rev .who{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.rev .who b{font-weight:500;font-size:15px}
+.rev .c{max-width:65ch}
+
+/* Page transition demo (section 5.3, CSS-only stand-in) */
+.pt-page{display:none}
+#pt-cat:checked ~ .f .pt-cat,#pt-det:checked ~ .f .pt-det{display:block;animation:vt-curtain-in var(--d-page) var(--ease-soft) both}
+@keyframes vt-curtain-in{from{clip-path:inset(100% 0 0 0);transform:translateY(24px)}to{clip-path:inset(0 0 0 0);transform:none}}
+#pt-det:checked ~ .f .pt-det .gmain .gi{animation:morph var(--d-page) var(--ease-soft) both}
+@keyframes morph{from{transform:translate(-28%,-14%) scale(.42)}to{transform:none}}
+.pt-tabs{display:flex;gap:8px;margin-bottom:16px}
+.pt-tabs label{display:inline-flex;align-items:center;height:44px;padding:0 16px;border:1px solid var(--chrome-muted);cursor:pointer;font-size:14px;font-weight:500}
+#pt-cat:checked ~ .pt-tabs .l-cat,#pt-det:checked ~ .pt-tabs .l-det{background:var(--chrome-text);color:var(--chrome-bg);border-color:var(--chrome-text)}
+
+/* Token swatches */
+.sw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.sw{background:var(--chrome-card);font-size:13px;line-height:1.45}
+.sw .chip2{height:72px;display:flex;align-items:flex-end;padding:8px;font:500 12px var(--sans)}
+.sw .chip2 span{flex:1}
+.sw div.t{padding:10px 12px}
+.sw b{font-weight:500}
+.spec-type{display:grid;gap:20px}
+.spec-type .lv{display:grid;grid-template-columns:180px 1fr;gap:24px;align-items:baseline;border-top:1px solid var(--line);padding-top:16px}
+
+/* =========================================================
+   4. REDUCED MOTION (section 5.5)
+   ========================================================= */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:1ms!important;animation-delay:0ms!important;animation-iteration-count:1!important;transition-duration:1ms!important}
+  .card:hover .img,.card:focus-visible .img{transform:none}
+  .sk{animation:none}
+}
+</style>
+</head>
+<body>
+<input type="checkbox" id="dark" class="ctl" aria-label="Dark mode preview">
+<div class="doc">
+
+<label class="toggle" for="dark"><span class="on">Preview dark mode</span><span class="off">Back to light mode</span></label>
+
+<header class="doc-head">
+  <p class="flab">Product Shop · design draft for approval · 2026-10-25</p>
+  <h1>Still<span class="dot"></span> wireframes &amp; visual design</h1>
+  <p>Every screen and state at <b>375px mobile</b> and <b>1280px desktop</b>, drawn close to the real visual design. Grey blocks stand in for product photos. Hover any desktop card to see the image zoom and title underline. The intro and the page transition are live (pure CSS, no JavaScript). Use the button at the top right to preview dark mode.</p>
+  <p>Tokens, motion keyframes and component props: <code>design/design-spec.md</code>. If your OS has "reduce motion" on, animations are skipped here too, exactly like the real app.</p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#tokens">1. Tokens</a><a href="#flow">2. User flow</a><a href="#home">3. Home + intro</a><a href="#catalog">4. Catalog</a><a href="#filtered">5. Search + filter</a><a href="#loading">6. Loading</a><a href="#empty">7. Empty</a><a href="#error">8. Error</a><a href="#detail">9. Product detail</a><a href="#detail-loading">10. Detail loading</a><a href="#notfound">11. Not found</a><a href="#transition">12. Page transition</a><a href="#components">13. Component states</a>
+  </nav>
+</header>
+
+<!-- ===================================================== 1. TOKENS -->
+<section class="sec" id="tokens">
+  <h2>1. Tokens</h2>
+  <p class="note">Near-monochrome. The reference's #A9A9A9 grey fails contrast (2.35:1), so secondary text is #6B6B6B (5.33:1). The warm grey #BDBBB6 is kept for decorative lines only. Ratios are against the page background.</p>
+  <div class="sw-grid">
+    <div class="sw"><div class="chip2" style="background:#FFFFFF;color:#111;box-shadow:inset 0 0 0 1px #ddd"><span>bg</span></div><div class="t"><b>#FFFFFF</b> / dark #0E0E0D</div></div>
+    <div class="sw"><div class="chip2" style="background:#F5F4F1;color:#111"><span>surface</span></div><div class="t"><b>#F5F4F1</b> / dark #1A1A18</div></div>
+    <div class="sw"><div class="chip2" style="background:#ECEAE6;color:#111"><span>surface-sunken</span></div><div class="t"><b>#ECEAE6</b> / dark #252523</div></div>
+    <div class="sw"><div class="chip2" style="background:#111111;color:#fff"><span>text · primary</span></div><div class="t"><b>#111111</b> 18.9:1 / dark #F2F1EE 17.1:1</div></div>
+    <div class="sw"><div class="chip2" style="background:#333333;color:#fff"><span>primary-hover</span></div><div class="t"><b>#333333</b> 12.6:1 / dark #D9D7D2 13.4:1</div></div>
+    <div class="sw"><div class="chip2" style="background:#6B6B6B;color:#fff"><span>text-muted</span></div><div class="t"><b>#6B6B6B</b> 5.33:1 / dark #9C9A95 6.87:1</div></div>
+    <div class="sw"><div class="chip2" style="background:#8A8782;color:#fff"><span>border (controls)</span></div><div class="t"><b>#8A8782</b> 3.58:1 / dark #75736E 4.08:1</div></div>
+    <div class="sw"><div class="chip2" style="background:#BDBBB6;color:#111"><span>line (decorative)</span></div><div class="t"><b>#BDBBB6</b> / dark #3A3936</div></div>
+    <div class="sw"><div class="chip2" style="background:#2F6B3A;color:#fff"><span>success</span></div><div class="t"><b>#2F6B3A</b> 6.39:1 / dark #7FC48D 9.37:1</div></div>
+    <div class="sw"><div class="chip2" style="background:#8A5A00;color:#fff"><span>warning</span></div><div class="t"><b>#8A5A00</b> 5.93:1 / dark #E0B460 9.99:1</div></div>
+    <div class="sw"><div class="chip2" style="background:#B42318;color:#fff"><span>danger</span></div><div class="t"><b>#B42318</b> 6.57:1 / dark #FF8A80 8.46:1</div></div>
+  </div>
+  <div class="f mid" style="margin-top:32px;width:auto;max-width:1280px">
+    <div class="wrap" style="padding-block:32px">
+      <div class="spec-type">
+        <div class="lv"><span class="cap">Display · Serif 176/0.9 (mobile 88)</span><span style="font-family:var(--serif);font-size:120px;line-height:.9;letter-spacing:-.02em">Still<span class="dot"></span></span></div>
+        <div class="lv"><span class="cap">H1 · Serif 52/1.05 (36)</span><span style="font-family:var(--serif);font-size:52px;line-height:1.05">Stoneware Mug</span></div>
+        <div class="lv"><span class="cap">H2 · Serif 36/1.1 (28)</span><span style="font-family:var(--serif);font-size:36px;line-height:1.1">Reviews</span></div>
+        <div class="lv"><span class="cap">H3 · Sans 16/1.35 · 500</span><span style="font-size:16px;font-weight:500">Linen Overshirt</span></div>
+        <div class="lv"><span class="cap">Price lg · Sans 28/1.2 · 500</span><span style="font-size:28px;font-weight:500;font-variant-numeric:tabular-nums">$7.23</span></div>
+        <div class="lv"><span class="cap">Body · Sans 16/1.55</span><span>A heavy stoneware mug with a matte glaze outside and a gloss glaze inside.</span></div>
+        <div class="lv"><span class="cap">Small · Sans 14/1.45</span><span style="font-size:14px">194 products · Clear filters</span></div>
+        <div class="lv"><span class="cap">Caption · Sans 12/1.4 · 500 · caps</span><span class="cap" style="color:var(--text)">Kitchen accessories</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================== 2. FLOW -->
+<section class="sec" id="flow">
+  <h2>2. User flow</h2>
+  <div class="panel">
+  <ol class="flow">
+    <li><b>Open <code>/</code></b> → intro plays once per session (dot grows, becomes the full stop, the word is drawn out) → catalog fades up below.</li>
+    <li><b>Type in Search</b> → after the debounce, the URL becomes <code>?q=cream</code> → skeleton grid → results + live count "3 products for “cream”".</li>
+    <li><b>Pick a Category</b> (works together with search) → <code>?q=cream&amp;category=beauty</code> → page resets to 1.</li>
+    <li><b>Pick Sort</b> → <code>&amp;sort=price&amp;order=asc</code> → grid reorders (no page reset needed, but it does go back to page 1).</li>
+    <li><b>Click a page number</b> → <code>&amp;page=2</code> → scroll to the products heading, focus it.</li>
+    <li><b>No match</b> → Empty state → "Clear filters" → back to all products. <b>Network fails</b> → Error state → "Try again" → loading → results.</li>
+    <li><b>Click a product card</b> → view transition (old page fades, new page rises with a curtain, the image morphs) → <code>/product/12</code> → detail skeleton → detail.</li>
+    <li><b>On detail</b>: pick a thumbnail → main image swaps. Scroll to Reviews. <b>"← Back to catalog"</b> → returns to the exact same filters and page (href keeps the query string).</li>
+    <li><b>Bad id</b> (<code>/product/abc</code> or 404) → Product not found → "Back to catalog".</li>
+  </ol>
+  </div>
+</section>
+
+<!-- ===================================================== 3. HOME + INTRO -->
+<section class="sec" id="home">
+  <h2>3. Home with intro animation</h2>
+  <p class="note">Live: plays on page load; press Replay to watch again. Timeline ≈ 2.6s: dot appears and swells (0.2–0.7s) → shrinks to full-stop size (to 1.4s) → glides right while the letters are uncovered to its left (1.0–2.4s) → tagline, toolbar and grid fade up (from 2.0s) → small header wordmark fades in last. Nothing blocks clicks while it plays.</p>
+  <input type="checkbox" id="replay" class="ctl"><label class="replay" for="replay">Replay intro</label>
+
+  <!-- COPY A and COPY B are identical; swapping them restarts the CSS animations without JavaScript. -->
+  <div class="copyA">
+    <div class="scroll"><div class="row">
+      <div>
+        <p class="flab">Desktop 1280 · intro</p>
+        <div class="f desk">
+          <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm intro-fade" style="--delay:2400ms" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+          <section class="hero wrap">
+            <h1 class="wm" data-intro aria-label="Still"><span class="track" aria-hidden="true"><span class="letters">Still</span><span class="dot"></span></span></h1>
+            <p class="tagline intro-fade" style="--delay:2000ms">A quiet catalogue of everyday things.</p>
+          </section>
+          <div class="wrap">
+            <div class="intro-fade" style="--delay:2200ms">
+              <div class="tb" role="search">
+                <div class="search"><label class="lbl" for="sA1">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="sA1" class="ctrl" type="search" placeholder="Search by name"></div></div>
+                <div class="cat"><label class="lbl" for="cA1">Category</label><div class="box sel"><select id="cA1" class="ctrl"><option>All categories</option><option>Beauty</option><option>Fragrances</option><option>Furniture</option></select></div></div>
+                <div class="sort"><label class="lbl" for="oA1">Sort by</label><div class="box sel"><select id="oA1" class="ctrl"><option>Featured</option><option>Price: low to high</option></select></div></div>
+              </div>
+              <div class="count"><p aria-live="polite"><b>194</b> products</p></div>
+            </div>
+            <ul class="grid intro-fade" style="--delay:2300ms">
+              <li><a class="card" href="#detail" style="--i:0"><div class="media"><div class="img s1"></div><span class="badge">−7%</span></div><div class="meta"><h3 class="ttl"><span>Lash Mascara</span></h3><p class="price">$9.29<s>$9.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:98%"></span>4.9</span></div></a></li>
+              <li><a class="card" href="#detail" style="--i:1"><div class="media"><div class="img s4"></div></div><div class="meta"><h3 class="ttl"><span>Eyeshadow Palette</span></h3><p class="price">$19.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:66%"></span>3.3</span></div></a></li>
+              <li><a class="card" href="#detail" style="--i:2"><div class="media"><div class="img s2"></div><span class="chip"><span class="stock low">Low stock</span></span></div><div class="meta"><h3 class="ttl"><span>Powder Canister</span></h3><p class="price">$14.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:76%"></span>3.8</span></div></a></li>
+              <li><a class="card" href="#detail" style="--i:3"><div class="media"><div class="img s3"></div><span class="badge">−12%</span></div><div class="meta"><h3 class="ttl"><span>Red Lipstick</span></h3><p class="price">$11.43<s>$12.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:50%"></span>2.5</span></div></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="flab">Mobile 375 · intro</p>
+        <div class="f mob">
+          <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm intro-fade" style="--delay:2400ms" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+          <section class="hero wrap">
+            <h1 class="wm" data-intro aria-label="Still"><span class="track" aria-hidden="true"><span class="letters">Still</span><span class="dot"></span></span></h1>
+            <p class="tagline intro-fade" style="--delay:2000ms">A quiet catalogue of everyday things.</p>
+          </section>
+          <div class="wrap">
+            <div class="intro-fade" style="--delay:2200ms">
+              <div class="tb" role="search">
+                <div class="search"><label class="lbl" for="sA2">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="sA2" class="ctrl" type="search" placeholder="Search by name"></div></div>
+                <div class="cat"><label class="lbl" for="cA2">Category</label><div class="box sel"><select id="cA2" class="ctrl"><option>All categories</option><option>Beauty</option></select></div></div>
+                <div class="sort"><label class="lbl" for="oA2">Sort by</label><div class="box sel"><select id="oA2" class="ctrl"><option>Featured</option><option>Price: low to high</option></select></div></div>
+              </div>
+              <div class="count"><p aria-live="polite"><b>194</b> products</p></div>
+            </div>
+            <ul class="grid intro-fade" style="--delay:2300ms">
+              <li><a class="card" href="#detail" style="--i:0"><div class="media"><div class="img s1"></div><span class="badge">−7%</span></div><div class="meta"><h3 class="ttl"><span>Lash Mascara</span></h3><p class="price">$9.29<s>$9.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:98%"></span>4.9</span></div></a></li>
+              <li><a class="card" href="#detail" style="--i:1"><div class="media"><div class="img s4"></div></div><div class="meta"><h3 class="ttl"><span>Eyeshadow Palette</span></h3><p class="price">$19.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:66%"></span>3.3</span></div></a></li>
+            </ul>
+          </div>
+          <div style="height:32px"></div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="copyB">
+    <div class="scroll"><div class="row">
+      <div>
+        <p class="flab">Desktop 1280 · intro (replay)</p>
+        <div class="f desk">
+          <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm intro-fade" style="--delay:2400ms" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+          <section class="hero wrap">
+            <h1 class="wm" data-intro aria-label="Still"><span class="track" aria-hidden="true"><span class="letters">Still</span><span class="dot"></span></span></h1>
+            <p class="tagline intro-fade" style="--delay:2000ms">A quiet catalogue of everyday things.</p>
+          </section>
+          <div class="wrap">
+            <div class="intro-fade" style="--delay:2200ms">
+              <div class="tb" role="search">
+                <div class="search"><label class="lbl" for="sB1">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="sB1" class="ctrl" type="search" placeholder="Search by name"></div></div>
+                <div class="cat"><label class="lbl" for="cB1">Category</label><div class="box sel"><select id="cB1" class="ctrl"><option>All categories</option><option>Beauty</option></select></div></div>
+                <div class="sort"><label class="lbl" for="oB1">Sort by</label><div class="box sel"><select id="oB1" class="ctrl"><option>Featured</option><option>Price: low to high</option></select></div></div>
+              </div>
+              <div class="count"><p aria-live="polite"><b>194</b> products</p></div>
+            </div>
+            <ul class="grid intro-fade" style="--delay:2300ms">
+              <li><a class="card" href="#detail" style="--i:0"><div class="media"><div class="img s1"></div><span class="badge">−7%</span></div><div class="meta"><h3 class="ttl"><span>Lash Mascara</span></h3><p class="price">$9.29<s>$9.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:98%"></span>4.9</span></div></a></li>
+              <li><a class="card" href="#detail" style="--i:1"><div class="media"><div class="img s4"></div></div><div class="meta"><h3 class="ttl"><span>Eyeshadow Palette</span></h3><p class="price">$19.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:66%"></span>3.3</span></div></a></li>
+              <li><a class="card" href="#detail" style="--i:2"><div class="media"><div class="img s2"></div><span class="chip"><span class="stock low">Low stock</span></span></div><div class="meta"><h3 class="ttl"><span>Powder Canister</span></h3><p class="price">$14.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:76%"></span>3.8</span></div></a></li>
+              <li><a class="card" href="#detail" style="--i:3"><div class="media"><div class="img s3"></div><span class="badge">−12%</span></div><div class="meta"><h3 class="ttl"><span>Red Lipstick</span></h3><p class="price">$11.43<s>$12.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:50%"></span>2.5</span></div></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="flab">Mobile 375 · intro (replay)</p>
+        <div class="f mob">
+          <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm intro-fade" style="--delay:2400ms" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+          <section class="hero wrap">
+            <h1 class="wm" data-intro aria-label="Still"><span class="track" aria-hidden="true"><span class="letters">Still</span><span class="dot"></span></span></h1>
+            <p class="tagline intro-fade" style="--delay:2000ms">A quiet catalogue of everyday things.</p>
+          </section>
+          <div class="wrap">
+            <div class="intro-fade" style="--delay:2200ms">
+              <div class="tb" role="search">
+                <div class="search"><label class="lbl" for="sB2">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="sB2" class="ctrl" type="search" placeholder="Search by name"></div></div>
+                <div class="cat"><label class="lbl" for="cB2">Category</label><div class="box sel"><select id="cB2" class="ctrl"><option>All categories</option><option>Beauty</option></select></div></div>
+                <div class="sort"><label class="lbl" for="oB2">Sort by</label><div class="box sel"><select id="oB2" class="ctrl"><option>Featured</option><option>Price: low to high</option></select></div></div>
+              </div>
+              <div class="count"><p aria-live="polite"><b>194</b> products</p></div>
+            </div>
+            <ul class="grid intro-fade" style="--delay:2300ms">
+              <li><a class="card" href="#detail" style="--i:0"><div class="media"><div class="img s1"></div><span class="badge">−7%</span></div><div class="meta"><h3 class="ttl"><span>Lash Mascara</span></h3><p class="price">$9.29<s>$9.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:98%"></span>4.9</span></div></a></li>
+              <li><a class="card" href="#detail" style="--i:1"><div class="media"><div class="img s4"></div></div><div class="meta"><h3 class="ttl"><span>Eyeshadow Palette</span></h3><p class="price">$19.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:66%"></span>3.3</span></div></a></li>
+            </ul>
+          </div>
+          <div style="height:32px"></div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<!-- ===================================================== 4. CATALOG DEFAULT -->
+<section class="sec" id="catalog">
+  <h2>4. Catalog (default, page 1)</h2>
+  <p class="note">Home after the intro (or on any later visit: no animation, the page is still). 12 products per page (fits 2, 3 and 4 columns). Hover a card: the image slowly zooms (1.4s soft ease) and the title underline draws in (240ms). Cards reveal one after another on load (60ms stagger). Tab through to see focus rings.</p>
+  <div class="scroll"><div class="row">
+    <div>
+      <p class="flab">Desktop 1280</p>
+      <div class="f desk">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <section class="hero wrap"><h1 class="wm" aria-label="Still"><span class="track" aria-hidden="true"><span class="letters">Still</span><span class="dot"></span></span></h1><p class="tagline">A quiet catalogue of everyday things.</p></section>
+        <div class="wrap">
+          <h2 class="vh">Products</h2>
+          <div class="tb" role="search">
+            <div class="search"><label class="lbl" for="s1">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="s1" class="ctrl" type="search" placeholder="Search by name"></div></div>
+            <div class="cat"><label class="lbl" for="c1">Category</label><div class="box sel"><select id="c1" class="ctrl"><option>All categories</option><option>Beauty</option><option>Fragrances</option><option>Furniture</option><option>Groceries</option><option>Home decoration</option><option>Kitchen accessories</option></select></div></div>
+            <div class="sort"><label class="lbl" for="o1">Sort by</label><div class="box sel"><select id="o1" class="ctrl"><option>Featured</option><option>Price: low to high</option><option>Price: high to low</option><option>Rating: high to low</option><option>Rating: low to high</option><option>Name: A–Z</option><option>Name: Z–A</option></select></div></div>
+          </div>
+          <div class="count"><p aria-live="polite"><b>194</b> products</p></div>
+          <ul class="grid" aria-label="Products">
+            <li><a class="card" href="#detail" style="--i:0"><div class="media"><div class="img s1"></div><span class="badge">−7%</span></div><div class="meta"><h3 class="ttl"><span>Lash Mascara</span></h3><p class="price">$9.29<s>$9.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:98%"></span>4.9</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:1"><div class="media"><div class="img s4"></div></div><div class="meta"><h3 class="ttl"><span>Eyeshadow Palette with Mirror</span></h3><p class="price">$19.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:66%"></span>3.3</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:2"><div class="media"><div class="img s2"></div><span class="chip"><span class="stock low">Low stock</span></span></div><div class="meta"><h3 class="ttl"><span>Powder Canister</span></h3><p class="price">$14.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:76%"></span>3.8</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:3"><div class="media"><div class="img s3"></div><span class="badge">−12%</span></div><div class="meta"><h3 class="ttl"><span>Red Lipstick</span></h3><p class="price">$11.43<s>$12.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:50%"></span>2.5</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:4"><div class="media"><div class="img s5"></div></div><div class="meta"><h3 class="ttl"><span>Eau de Parfum, 50 ml</span></h3><p class="price">$79.99</p><p class="cap">Fragrances</p><span class="rate"><span class="stars" style="--r:88%"></span>4.4</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:5"><div class="media"><div class="img s4"></div><span class="badge">−8%</span></div><div class="meta"><h3 class="ttl"><span>Wooden Bed Frame</span></h3><p class="price">$1,747.99<s>$1,899.99</s></p><p class="cap">Furniture</p><span class="rate"><span class="stars" style="--r:80%"></span>4.0</span></div></a></li>
+            <li><a class="card out" href="#detail" style="--i:6"><div class="media"><div class="img s1"></div><span class="chip"><span class="stock no">Out of stock</span></span></div><div class="meta"><h3 class="ttl"><span>Oak Side Table</span></h3><p class="price">$299.99</p><p class="cap">Furniture</p><span class="rate"><span class="stars" style="--r:72%"></span>3.6</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:7"><div class="media"><div class="img s3"></div></div><div class="meta"><h3 class="ttl"><span>Desk Lamp</span></h3><p class="price">$34.00</p><p class="cap">Home decoration</p><span class="rate"><span class="stars" style="--r:94%"></span>4.7</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:8"><div class="media"><div class="img s2"></div></div><div class="meta"><h3 class="ttl"><span>Green Apple</span></h3><p class="price">$1.99</p><p class="cap">Groceries</p><span class="rate"><span class="stars" style="--r:84%"></span>4.2</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:9"><div class="media"><div class="img s5"></div><span class="badge">−15%</span><span class="chip"><span class="stock low">Low stock</span></span></div><div class="meta"><h3 class="ttl"><span>Stoneware Mug</span></h3><p class="price">$7.23<s>$8.50</s></p><p class="cap">Kitchen</p><span class="rate"><span class="stars" style="--r:90%"></span>4.5</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:10"><div class="media"><div class="img s1"></div></div><div class="meta"><h3 class="ttl"><span>Linen Overshirt</span></h3><p class="price">$39.99</p><p class="cap">Mens shirts</p><span class="rate"><span class="stars" style="--r:78%"></span>3.9</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:11"><div class="media"><div class="img s2"></div></div><div class="meta"><h3 class="ttl"><span>Leather Strap Watch</span></h3><p class="price">$129.00</p><p class="cap">Mens watches</p><span class="rate"><span class="stars" style="--r:96%"></span>4.8</span></div></a></li>
+          </ul>
+          <nav class="pg" aria-label="Pagination"><ol>
+            <li><span class="dis" aria-disabled="true">← Previous</span></li>
+            <li class="num"><a href="#catalog" aria-current="page">1</a></li>
+            <li class="num"><a href="#catalog">2</a></li>
+            <li class="num"><a href="#catalog">3</a></li>
+            <li class="num"><span aria-hidden="true">…</span></li>
+            <li class="num"><a href="#catalog">17</a></li>
+            <li><span class="pos">Page 1 of 17</span></li>
+            <li><a href="#catalog">Next →</a></li>
+          </ol></nav>
+        </div>
+        <footer class="ftr"><div class="wrap"><span>Still. A learning project. Product data: DummyJSON.</span><span>2026</span></div></footer>
+      </div>
+    </div>
+    <div>
+      <p class="flab">Mobile 375</p>
+      <div class="f mob">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <section class="hero wrap"><h1 class="wm" aria-label="Still"><span class="track" aria-hidden="true"><span class="letters">Still</span><span class="dot"></span></span></h1><p class="tagline">A quiet catalogue of everyday things.</p></section>
+        <div class="wrap">
+          <div class="tb" role="search">
+            <div class="search"><label class="lbl" for="s2">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="s2" class="ctrl" type="search" placeholder="Search by name"></div></div>
+            <div class="cat"><label class="lbl" for="c2">Category</label><div class="box sel"><select id="c2" class="ctrl"><option>All categories</option><option>Beauty</option></select></div></div>
+            <div class="sort"><label class="lbl" for="o2">Sort by</label><div class="box sel"><select id="o2" class="ctrl"><option>Featured</option><option>Price: low to high</option></select></div></div>
+          </div>
+          <div class="count"><p aria-live="polite"><b>194</b> products</p></div>
+          <ul class="grid" aria-label="Products">
+            <li><a class="card" href="#detail" style="--i:0"><div class="media"><div class="img s1"></div><span class="badge">−7%</span></div><div class="meta"><h3 class="ttl"><span>Lash Mascara</span></h3><p class="price">$9.29<s>$9.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:98%"></span>4.9</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:1"><div class="media"><div class="img s4"></div></div><div class="meta"><h3 class="ttl"><span>Eyeshadow Palette with Mirror</span></h3><p class="price">$19.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:66%"></span>3.3</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:2"><div class="media"><div class="img s2"></div><span class="chip"><span class="stock low">Low stock</span></span></div><div class="meta"><h3 class="ttl"><span>Powder Canister</span></h3><p class="price">$14.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:76%"></span>3.8</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:3"><div class="media"><div class="img s3"></div><span class="badge">−12%</span></div><div class="meta"><h3 class="ttl"><span>Red Lipstick</span></h3><p class="price">$11.43<s>$12.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:50%"></span>2.5</span></div></a></li>
+          </ul>
+          <nav class="pg" aria-label="Pagination"><ol>
+            <li><span class="dis" aria-disabled="true">← Prev</span></li>
+            <li class="num"><a href="#catalog" aria-current="page">1</a></li>
+            <li><span class="pos">Page 1 of 17</span></li>
+            <li><a href="#catalog">Next →</a></li>
+          </ol></nav>
+        </div>
+        <footer class="ftr"><div class="wrap"><span>Still. Product data: DummyJSON.</span></div></footer>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ===================================================== 5. FILTERED -->
+<section class="sec" id="filtered">
+  <h2>5. Search + category + sort combined</h2>
+  <p class="note">Search "cream" inside Beauty, sorted by price. The count sentence is an <code>aria-live</code> region so screen-reader users hear the new total. "Clear filters" appears only when a filter is active. One page of results, so pagination is hidden. On a filter change the hero stays but the grid re-reveals.</p>
+  <div class="scroll"><div class="row">
+    <div>
+      <p class="flab">Desktop 1280 · <code>/?q=cream&amp;category=beauty&amp;sort=price&amp;order=asc</code></p>
+      <div class="f desk">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <section class="hero wrap"><h1 class="wm" aria-label="Still"><span class="track" aria-hidden="true"><span class="letters">Still</span><span class="dot"></span></span></h1><p class="tagline">A quiet catalogue of everyday things.</p></section>
+        <div class="wrap">
+          <div class="tb" role="search">
+            <div class="search"><label class="lbl" for="s3">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="s3" class="ctrl" type="search" value="cream"><button class="clr" type="button" aria-label="Clear search">×</button></div></div>
+            <div class="cat"><label class="lbl" for="c3">Category</label><div class="box sel"><select id="c3" class="ctrl"><option>All categories</option><option selected>Beauty</option></select></div></div>
+            <div class="sort"><label class="lbl" for="o3">Sort by</label><div class="box sel"><select id="o3" class="ctrl"><option>Featured</option><option selected>Price: low to high</option></select></div></div>
+          </div>
+          <div class="count"><p aria-live="polite"><b>3</b> products for <q>cream</q> in Beauty</p><span aria-hidden="true">·</span><a class="lnk" href="#catalog">Clear filters</a></div>
+          <ul class="grid" aria-label="Products">
+            <li><a class="card" href="#detail" style="--i:0"><div class="media"><div class="img s2"></div></div><div class="meta"><h3 class="ttl"><span>Hand Cream, 75 ml</span></h3><p class="price">$6.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:86%"></span>4.3</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:1"><div class="media"><div class="img s5"></div><span class="badge">−10%</span></div><div class="meta"><h3 class="ttl"><span>Night Cream</span></h3><p class="price">$13.49<s>$14.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:74%"></span>3.7</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:2"><div class="media"><div class="img s3"></div><span class="chip"><span class="stock low">Low stock</span></span></div><div class="meta"><h3 class="ttl"><span>Cream Blush Stick</span></h3><p class="price">$18.00</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:92%"></span>4.6</span></div></a></li>
+          </ul>
+        </div>
+        <footer class="ftr"><div class="wrap"><span>Still. A learning project. Product data: DummyJSON.</span><span>2026</span></div></footer>
+      </div>
+    </div>
+    <div>
+      <p class="flab">Mobile 375</p>
+      <div class="f mob">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap" style="padding-top:24px">
+          <p class="flab" style="color:var(--text-muted)">(hero above, scrolled)</p>
+          <div class="tb" role="search">
+            <div class="search"><label class="lbl" for="s4">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="s4" class="ctrl" type="search" value="cream"><button class="clr" type="button" aria-label="Clear search">×</button></div></div>
+            <div class="cat"><label class="lbl" for="c4">Category</label><div class="box sel"><select id="c4" class="ctrl"><option>All categories</option><option selected>Beauty</option></select></div></div>
+            <div class="sort"><label class="lbl" for="o4">Sort by</label><div class="box sel"><select id="o4" class="ctrl"><option>Featured</option><option selected>Price: low to high</option></select></div></div>
+          </div>
+          <div class="count"><p aria-live="polite"><b>3</b> products for <q>cream</q> in Beauty</p><a class="lnk" href="#catalog">Clear filters</a></div>
+          <ul class="grid" aria-label="Products">
+            <li><a class="card" href="#detail" style="--i:0"><div class="media"><div class="img s2"></div></div><div class="meta"><h3 class="ttl"><span>Hand Cream, 75 ml</span></h3><p class="price">$6.99</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:86%"></span>4.3</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:1"><div class="media"><div class="img s5"></div><span class="badge">−10%</span></div><div class="meta"><h3 class="ttl"><span>Night Cream</span></h3><p class="price">$13.49<s>$14.99</s></p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:74%"></span>3.7</span></div></a></li>
+            <li><a class="card" href="#detail" style="--i:2"><div class="media"><div class="img s3"></div><span class="chip"><span class="stock low">Low stock</span></span></div><div class="meta"><h3 class="ttl"><span>Cream Blush Stick</span></h3><p class="price">$18.00</p><p class="cap">Beauty</p><span class="rate"><span class="stars" style="--r:92%"></span>4.6</span></div></a></li>
+          </ul>
+        </div>
+        <footer class="ftr"><div class="wrap"><span>Still. Product data: DummyJSON.</span></div></footer>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ===================================================== 6. LOADING -->
+<section class="sec" id="loading">
+  <h2>6. Loading (skeletons)</h2>
+  <p class="note">Skeleton boxes have the exact size of real cards, so nothing jumps when data arrives. Soft pulse (stops under reduced motion). The toolbar stays usable. Screen readers hear "Loading products…" from a status region.</p>
+  <div class="scroll"><div class="row">
+    <div>
+      <p class="flab">Desktop 1280</p>
+      <div class="f desk">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap" style="padding-top:32px">
+          <div class="tb" role="search">
+            <div class="search"><label class="lbl" for="s5">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="s5" class="ctrl" type="search" value="lamp"><button class="clr" type="button" aria-label="Clear search">×</button></div></div>
+            <div class="cat"><label class="lbl" for="c5">Category</label><div class="box sel"><select id="c5" class="ctrl"><option>All categories</option></select></div></div>
+            <div class="sort"><label class="lbl" for="o5">Sort by</label><div class="box sel"><select id="o5" class="ctrl"><option>Featured</option></select></div></div>
+          </div>
+          <div class="count"><p aria-live="polite" role="status">Loading products…</p></div>
+          <ul class="grid" aria-busy="true" aria-label="Products">
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+          </ul>
+        </div>
+        <div style="height:64px"></div>
+      </div>
+    </div>
+    <div>
+      <p class="flab">Mobile 375</p>
+      <div class="f mob">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap" style="padding-top:24px">
+          <div class="tb" role="search">
+            <div class="search"><label class="lbl" for="s6">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="s6" class="ctrl" type="search" value="lamp"><button class="clr" type="button" aria-label="Clear search">×</button></div></div>
+            <div class="cat"><label class="lbl" for="c6">Category</label><div class="box sel"><select id="c6" class="ctrl" disabled><option>Loading…</option></select></div></div>
+            <div class="sort"><label class="lbl" for="o6">Sort by</label><div class="box sel"><select id="o6" class="ctrl"><option>Featured</option></select></div></div>
+          </div>
+          <div class="count"><p aria-live="polite" role="status">Loading products…</p></div>
+          <ul class="grid" aria-busy="true" aria-label="Products">
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+            <li><div class="sk sk-media"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar sm" style="width:40%"></div></li>
+          </ul>
+        </div>
+        <div style="height:48px"></div>
+      </div>
+      <p class="flab" style="margin-top:12px">Mobile also shows the category select disabled while categories load.</p>
+    </div>
+  </div></div>
+</section>
+
+<!-- ===================================================== 7. EMPTY -->
+<section class="sec" id="empty">
+  <h2>7. Empty results</h2>
+  <p class="note">No illustration, just type and the wordmark's dot. One clear way out.</p>
+  <div class="scroll"><div class="row">
+    <div>
+      <p class="flab">Desktop 1280</p>
+      <div class="f desk">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap" style="padding-top:32px">
+          <div class="tb" role="search">
+            <div class="search"><label class="lbl" for="s7">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="s7" class="ctrl" type="search" value="xyzzy"><button class="clr" type="button" aria-label="Clear search">×</button></div></div>
+            <div class="cat"><label class="lbl" for="c7">Category</label><div class="box sel"><select id="c7" class="ctrl"><option>Beauty</option></select></div></div>
+            <div class="sort"><label class="lbl" for="o7">Sort by</label><div class="box sel"><select id="o7" class="ctrl"><option>Featured</option></select></div></div>
+          </div>
+          <div class="count"><p aria-live="polite"><b>0</b> products for <q>xyzzy</q> in Beauty</p></div>
+          <div class="state">
+            <span class="mk" aria-hidden="true"></span>
+            <h2>Nothing matches “xyzzy” in Beauty.</h2>
+            <p>Check the spelling, or search all categories instead.</p>
+            <button class="btn btn-s" type="button">Clear filters</button>
+          </div>
+        </div>
+        <footer class="ftr" style="margin-top:32px"><div class="wrap"><span>Still. A learning project. Product data: DummyJSON.</span><span>2026</span></div></footer>
+      </div>
+    </div>
+    <div>
+      <p class="flab">Mobile 375</p>
+      <div class="f mob">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap" style="padding-top:24px">
+          <div class="tb" role="search">
+            <div class="search"><label class="lbl" for="s8">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="s8" class="ctrl" type="search" value="xyzzy"><button class="clr" type="button" aria-label="Clear search">×</button></div></div>
+            <div class="cat"><label class="lbl" for="c8">Category</label><div class="box sel"><select id="c8" class="ctrl"><option>Beauty</option></select></div></div>
+            <div class="sort"><label class="lbl" for="o8">Sort by</label><div class="box sel"><select id="o8" class="ctrl"><option>Featured</option></select></div></div>
+          </div>
+          <div class="count"><p aria-live="polite"><b>0</b> products for <q>xyzzy</q> in Beauty</p></div>
+          <div class="state">
+            <span class="mk" aria-hidden="true"></span>
+            <h2>Nothing matches “xyzzy” in Beauty.</h2>
+            <p>Check the spelling, or search all categories instead.</p>
+            <button class="btn btn-s" type="button">Clear filters</button>
+          </div>
+        </div>
+        <footer class="ftr" style="margin-top:16px"><div class="wrap"><span>Still. Product data: DummyJSON.</span></div></footer>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ===================================================== 8. ERROR -->
+<section class="sec" id="error">
+  <h2>8. Error with retry</h2>
+  <p class="note">Same calm layout as Empty, but the dot is red and the block is <code>role="alert"</code>. Second mobile frame shows the button while retrying (disabled, label changes).</p>
+  <div class="scroll"><div class="row">
+    <div>
+      <p class="flab">Desktop 1280</p>
+      <div class="f desk">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap" style="padding-top:32px">
+          <div class="tb" role="search">
+            <div class="search"><label class="lbl" for="s9">Search products</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="s9" class="ctrl" type="search" placeholder="Search by name"></div></div>
+            <div class="cat"><label class="lbl" for="c9">Category</label><div class="box sel"><select id="c9" class="ctrl"><option>All categories</option></select></div></div>
+            <div class="sort"><label class="lbl" for="o9">Sort by</label><div class="box sel"><select id="o9" class="ctrl"><option>Featured</option></select></div></div>
+          </div>
+          <div class="count"><p aria-live="polite"></p></div>
+          <div class="state" role="alert">
+            <span class="mk err" aria-hidden="true"></span>
+            <h2>Something went wrong.</h2>
+            <p>We couldn't load the products. Check your connection and try again.</p>
+            <button class="btn btn-p" type="button">Try again</button>
+          </div>
+        </div>
+        <footer class="ftr" style="margin-top:32px"><div class="wrap"><span>Still. A learning project. Product data: DummyJSON.</span><span>2026</span></div></footer>
+      </div>
+    </div>
+    <div>
+      <p class="flab">Mobile 375</p>
+      <div class="f mob">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap">
+          <div class="state" role="alert">
+            <span class="mk err" aria-hidden="true"></span>
+            <h2>Something went wrong.</h2>
+            <p>We couldn't load the products. Check your connection and try again.</p>
+            <button class="btn btn-p" type="button">Try again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="flab">Mobile 375 · retrying</p>
+      <div class="f mob">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog" aria-current="page">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap">
+          <div class="state" role="alert">
+            <span class="mk err" aria-hidden="true"></span>
+            <h2>Something went wrong.</h2>
+            <p>We couldn't load the products. Check your connection and try again.</p>
+            <button class="btn btn-p" type="button" disabled aria-busy="true">Trying again…</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ===================================================== 9. DETAIL -->
+<section class="sec" id="detail">
+  <h2>9. Product detail</h2>
+  <p class="note">Gallery left (7 of 12 columns), summary right (5 columns, sticky while you scroll the gallery). Click the thumbnails: the main image swaps with a soft fade. On mobile the main image is full-bleed and the thumbnail row scrolls sideways. "Back to catalog" keeps the user's filters and page.</p>
+  <div class="scroll"><div class="row">
+    <div>
+      <p class="flab">Desktop 1280 · <code>/product/42</code></p>
+      <div class="f desk">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap">
+          <a class="lnk back" href="#catalog">← Back to catalog</a>
+          <div class="pd">
+            <div class="gal">
+              <input type="radio" name="gd" id="gd1" class="ctl r1" checked aria-label="Show image 1 of 4"><input type="radio" name="gd" id="gd2" class="ctl r2" aria-label="Show image 2 of 4"><input type="radio" name="gd" id="gd3" class="ctl r3" aria-label="Show image 3 of 4"><input type="radio" name="gd" id="gd4" class="ctl r4" aria-label="Show image 4 of 4">
+              <div class="gmain"><div class="gi gi1"><span class="n">1 / 4</span></div><div class="gi gi2"><span class="n">2 / 4</span></div><div class="gi gi3"><span class="n">3 / 4</span></div><div class="gi gi4"><span class="n">4 / 4</span></div></div>
+              <div class="thumbs"><label class="th t1" for="gd1"></label><label class="th t2" for="gd2"></label><label class="th t3" for="gd3"></label><label class="th t4" for="gd4"></label></div>
+            </div>
+            <div class="sum">
+              <p class="cap">Kiln &amp; Co · Kitchen accessories</p>
+              <h1>Stoneware Mug</h1>
+              <span class="rate md" role="img" aria-label="Rated 4.5 out of 5, 3 reviews"><span class="stars" style="--r:90%" aria-hidden="true"></span><span aria-hidden="true">4.5</span><span class="n" aria-hidden="true">(3 reviews)</span></span>
+              <div class="plg"><span class="now"><span class="vh">Now </span>$7.23</span><s><span class="vh">Was </span>$8.50</s><span class="badge">−15%</span></div>
+              <span class="stock low">Low stock: 4 left</span>
+              <p class="desc">A heavy stoneware mug with a matte glaze outside and a gloss glaze inside. Holds 350 ml and keeps tea warm for longer. Dishwasher safe.</p>
+              <dl class="dl">
+                <dt>Brand</dt><dd>Kiln &amp; Co</dd>
+                <dt>Category</dt><dd>Kitchen accessories</dd>
+                <dt>Stock</dt><dd>4 units</dd>
+                <dt>Shipping</dt><dd>Ships in 1 week</dd>
+                <dt>Returns</dt><dd>30 days return policy</dd>
+              </dl>
+            </div>
+            <section class="rev" aria-labelledby="rv1">
+              <div class="rev-head"><h2 id="rv1">Reviews</h2><span class="rate md" role="img" aria-label="Average 4.5 out of 5 from 3 reviews"><span class="stars" style="--r:90%" aria-hidden="true"></span><span aria-hidden="true">4.5</span><span class="n" aria-hidden="true">· 3 reviews</span></span></div>
+              <ul>
+                <li><div class="who"><b>Eleanor Collins</b><time class="cap" datetime="2026-10-12">Oct 12, 2026</time></div><span class="rate" role="img" aria-label="Rated 5 out of 5"><span class="stars" style="--r:100%"></span></span><p class="c">Exactly as pictured. Lovely weight in the hand and the glaze is even nicer in person.</p></li>
+                <li><div class="who"><b>Lucas Gordon</b><time class="cap" datetime="2026-09-30">Sep 30, 2026</time></div><span class="rate" role="img" aria-label="Rated 4 out of 5"><span class="stars" style="--r:80%"></span></span><p class="c">Good mug, slightly smaller than I expected.</p></li>
+                <li><div class="who"><b>Mila Hernandez</b><time class="cap" datetime="2026-09-02">Sep 2, 2026</time></div><span class="rate" role="img" aria-label="Rated 4 out of 5"><span class="stars" style="--r:80%"></span></span><p class="c">Nice glaze. Arrived well packed.</p></li>
+              </ul>
+            </section>
+          </div>
+        </div>
+        <footer class="ftr"><div class="wrap"><span>Still. A learning project. Product data: DummyJSON.</span><span>2026</span></div></footer>
+      </div>
+    </div>
+    <div>
+      <p class="flab">Mobile 375</p>
+      <div class="f mob">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap">
+          <a class="lnk back" href="#catalog">← Back to catalog</a>
+          <div class="pd">
+            <div class="gal">
+              <input type="radio" name="gm" id="gm1" class="ctl r1" checked aria-label="Show image 1 of 4"><input type="radio" name="gm" id="gm2" class="ctl r2" aria-label="Show image 2 of 4"><input type="radio" name="gm" id="gm3" class="ctl r3" aria-label="Show image 3 of 4"><input type="radio" name="gm" id="gm4" class="ctl r4" aria-label="Show image 4 of 4">
+              <div class="gmain"><div class="gi gi1"><span class="n">1 / 4</span></div><div class="gi gi2"><span class="n">2 / 4</span></div><div class="gi gi3"><span class="n">3 / 4</span></div><div class="gi gi4"><span class="n">4 / 4</span></div></div>
+              <div class="thumbs"><label class="th t1" for="gm1"></label><label class="th t2" for="gm2"></label><label class="th t3" for="gm3"></label><label class="th t4" for="gm4"></label></div>
+            </div>
+            <div class="sum">
+              <p class="cap">Kiln &amp; Co · Kitchen accessories</p>
+              <h1>Stoneware Mug</h1>
+              <span class="rate md"><span class="stars" style="--r:90%"></span>4.5<span class="n">(3 reviews)</span></span>
+              <div class="plg"><span class="now">$7.23</span><s>$8.50</s><span class="badge">−15%</span></div>
+              <span class="stock low">Low stock: 4 left</span>
+              <p class="desc">A heavy stoneware mug with a matte glaze outside and a gloss glaze inside. Holds 350 ml and keeps tea warm for longer. Dishwasher safe.</p>
+              <dl class="dl">
+                <dt>Brand</dt><dd>Kiln &amp; Co</dd>
+                <dt>Stock</dt><dd>4 units</dd>
+                <dt>Shipping</dt><dd>Ships in 1 week</dd>
+                <dt>Returns</dt><dd>30 days</dd>
+              </dl>
+            </div>
+            <section class="rev" aria-labelledby="rv2">
+              <div class="rev-head"><h2 id="rv2">Reviews</h2><span class="rate md"><span class="stars" style="--r:90%"></span>4.5<span class="n">· 3</span></span></div>
+              <ul>
+                <li><div class="who"><b>Eleanor Collins</b><time class="cap" datetime="2026-10-12">Oct 12, 2026</time></div><span class="rate"><span class="stars" style="--r:100%"></span></span><p class="c">Exactly as pictured. Lovely weight in the hand and the glaze is even nicer in person.</p></li>
+                <li><div class="who"><b>Lucas Gordon</b><time class="cap" datetime="2026-09-30">Sep 30, 2026</time></div><span class="rate"><span class="stars" style="--r:80%"></span></span><p class="c">Good mug, slightly smaller than I expected.</p></li>
+              </ul>
+            </section>
+          </div>
+        </div>
+        <footer class="ftr" style="margin-top:48px"><div class="wrap"><span>Still. Product data: DummyJSON.</span></div></footer>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ===================================================== 10. DETAIL LOADING -->
+<section class="sec" id="detail-loading">
+  <h2>10. Detail loading</h2>
+  <p class="note">The back link is real immediately; everything else is a skeleton the size of the final layout.</p>
+  <div class="scroll"><div class="row">
+    <div>
+      <p class="flab">Desktop 1280</p>
+      <div class="f desk">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap">
+          <a class="lnk back" href="#catalog">← Back to catalog</a>
+          <div class="pd" aria-busy="true"><p class="vh" role="status">Loading product…</p>
+            <div class="gal"><div class="sk" style="aspect-ratio:1/1"></div><div class="thumbs"><div class="sk" style="width:80px;height:80px;flex:none"></div><div class="sk" style="width:80px;height:80px;flex:none"></div><div class="sk" style="width:80px;height:80px;flex:none"></div><div class="sk" style="width:80px;height:80px;flex:none"></div></div></div>
+            <div class="sum">
+              <div class="sk" style="height:12px;width:40%"></div>
+              <div class="sk" style="height:44px;width:85%"></div>
+              <div class="sk" style="height:44px;width:55%;margin-top:-8px"></div>
+              <div class="sk" style="height:16px;width:30%"></div>
+              <div class="sk" style="height:28px;width:35%"></div>
+              <div class="sk" style="height:14px;width:100%;margin-top:8px"></div><div class="sk" style="height:14px;width:96%"></div><div class="sk" style="height:14px;width:90%"></div><div class="sk" style="height:14px;width:60%"></div>
+            </div>
+          </div>
+        </div>
+        <div style="height:64px"></div>
+      </div>
+    </div>
+    <div>
+      <p class="flab">Mobile 375</p>
+      <div class="f mob">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap">
+          <a class="lnk back" href="#catalog">← Back to catalog</a>
+          <div class="pd" aria-busy="true">
+            <div class="gal"><div class="sk" style="aspect-ratio:1/1;margin-inline:-20px"></div><div class="thumbs"><div class="sk" style="width:64px;height:64px;flex:none"></div><div class="sk" style="width:64px;height:64px;flex:none"></div><div class="sk" style="width:64px;height:64px;flex:none"></div><div class="sk" style="width:64px;height:64px;flex:none"></div></div></div>
+            <div class="sum">
+              <div class="sk" style="height:12px;width:50%"></div>
+              <div class="sk" style="height:32px;width:80%"></div>
+              <div class="sk" style="height:16px;width:40%"></div>
+              <div class="sk" style="height:24px;width:35%"></div>
+              <div class="sk" style="height:14px;width:100%;margin-top:8px"></div><div class="sk" style="height:14px;width:92%"></div><div class="sk" style="height:14px;width:60%"></div>
+            </div>
+          </div>
+        </div>
+        <div style="height:48px"></div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ===================================================== 11. NOT FOUND -->
+<section class="sec" id="notfound">
+  <h2>11. Product not found</h2>
+  <p class="note">For <code>/product/abc</code>, a 404 from the API, or any unknown route. The title is the page's <code>h1</code> and receives focus.</p>
+  <div class="scroll"><div class="row">
+    <div>
+      <p class="flab">Desktop 1280</p>
+      <div class="f desk">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap">
+          <div class="state" style="padding-block:128px">
+            <span class="mk" aria-hidden="true"></span>
+            <h1 tabindex="-1">We couldn't find that product.</h1>
+            <p>It may have been removed, or the link is wrong.</p>
+            <a class="btn btn-p" href="#catalog">Back to catalog</a>
+          </div>
+        </div>
+        <footer class="ftr" style="margin-top:0"><div class="wrap"><span>Still. A learning project. Product data: DummyJSON.</span><span>2026</span></div></footer>
+      </div>
+    </div>
+    <div>
+      <p class="flab">Mobile 375</p>
+      <div class="f mob">
+        <header class="hdr"><div class="wrap hdr-in"><a class="lnk" href="#catalog">Catalog</a><a class="wm-sm" href="#home" aria-label="Still, home">Still<span class="dot"></span></a><a class="lnk r" href="#home">Source</a></div></header>
+        <div class="wrap">
+          <div class="state" style="padding-block:96px">
+            <span class="mk" aria-hidden="true"></span>
+            <h1 tabindex="-1">We couldn't find that product.</h1>
+            <p>It may have been removed, or the link is wrong.</p>
+            <a class="btn btn-p" href="#catalog">Back to catalog</a>
+          </div>
+        </div>
+        <footer class="ftr" style="margin-top:0"><div class="wrap"><span>Still. Product data: DummyJSON.</span></div></footer>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ===================================================== 12. PAGE TRANSITION -->
+<section class="sec" id="transition">
+  <h2>12. Page transition (catalog ↔ detail)</h2>
+  <p class="note">Click a card (or use the tabs) to "navigate". The header stays still; the new page rises in behind a curtain (<code>clip-path: inset(100% 0 0 0) → inset(0)</code>, 900ms soft ease) and the product image grows from the card's position. In the real app the browser's View Transitions API also fades the old page out (350ms) and morphs the exact card image into the detail image; this static file can only imitate that. Under reduced motion, pages swap instantly.</p>
+  <input type="radio" name="pt" id="pt-cat" class="ctl" checked>
+  <input type="radio" name="pt" id="pt-det" class="ctl">
+  <div class="pt-tabs"><label class="l-cat" for="pt-cat">Catalog</label><label class="l-det" for="pt-det">Detail</label></div>
+  <div class="f mid">
+    <header class="hdr"><div class="wrap hdr-in"><span class="lnk">Catalog</span><span class="wm-sm">Still<span class="dot"></span></span><span class="lnk r">Source</span></div></header>
+    <div class="pt-page pt-cat">
+      <div class="wrap" style="padding-top:24px">
+        <div class="count" style="margin-top:0"><p><b>194</b> products</p></div>
+        <ul class="grid">
+          <li><label class="card" for="pt-det" style="--i:0"><div class="media"><div class="img s5"></div><span class="badge">−15%</span></div><div class="meta"><h3 class="ttl"><span>Stoneware Mug</span></h3><p class="price">$7.23<s>$8.50</s></p><p class="cap">Kitchen</p><span class="rate"><span class="stars" style="--r:90%"></span>4.5</span></div></label></li>
+          <li><label class="card" for="pt-det" style="--i:1"><div class="media"><div class="img s3"></div></div><div class="meta"><h3 class="ttl"><span>Desk Lamp</span></h3><p class="price">$34.00</p><p class="cap">Home decoration</p><span class="rate"><span class="stars" style="--r:94%"></span>4.7</span></div></label></li>
+          <li><label class="card" for="pt-det" style="--i:2"><div class="media"><div class="img s2"></div></div><div class="meta"><h3 class="ttl"><span>Green Apple</span></h3><p class="price">$1.99</p><p class="cap">Groceries</p><span class="rate"><span class="stars" style="--r:84%"></span>4.2</span></div></label></li>
+        </ul>
+        <div style="height:48px"></div>
+      </div>
+    </div>
+    <div class="pt-page pt-det">
+      <div class="wrap">
+        <label class="lnk back" for="pt-cat" style="cursor:pointer">← Back to catalog</label>
+        <div class="pd" style="grid-template-columns:1fr 1fr;gap:32px">
+          <div class="gal"><input type="radio" class="ctl r1" checked name="ptg"><div class="gmain"><div class="gi gi1"></div></div></div>
+          <div class="sum">
+            <p class="cap">Kiln &amp; Co · Kitchen accessories</p>
+            <h1>Stoneware Mug</h1>
+            <div class="plg"><span class="now">$7.23</span><s>$8.50</s><span class="badge">−15%</span></div>
+            <span class="stock low">Low stock: 4 left</span>
+          </div>
+        </div>
+        <div style="height:48px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================== 13. COMPONENT STATES -->
+<section class="sec" id="components">
+  <h2>13. Component states</h2>
+  <p class="note">Forced states for review. The real ones respond to your mouse and keyboard above.</p>
+  <div class="f mid" style="width:auto;max-width:1280px">
+    <div class="wrap" style="padding-block:40px;display:grid;gap:40px">
+
+      <div><p class="cap" style="margin-bottom:12px">Button · primary</p>
+        <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:center">
+          <button class="btn btn-p" type="button">Default</button><button class="btn btn-p is-hover" type="button">Hover</button><button class="btn btn-p is-focus" type="button">Focus</button><button class="btn btn-p is-active" type="button">Active</button><button class="btn btn-p" type="button" disabled>Disabled</button>
+        </div></div>
+
+      <div><p class="cap" style="margin-bottom:12px">Button · secondary</p>
+        <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:center">
+          <button class="btn btn-s" type="button">Default</button><button class="btn btn-s is-hover" type="button">Hover</button><button class="btn btn-s is-focus" type="button">Focus</button><button class="btn btn-s is-active" type="button">Active</button><button class="btn btn-s" type="button" disabled>Disabled</button>
+          <a class="lnk" href="#components">Text link</a><a class="lnk" href="#components" style="background-size:100% 1px">Link hover</a>
+        </div></div>
+
+      <div><p class="cap" style="margin-bottom:12px">SearchBox / select</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px">
+          <div><label class="lbl" for="x1">Default</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="x1" class="ctrl" type="search" placeholder="Search by name"></div></div>
+          <div><label class="lbl" for="x2">Hover</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="x2" class="ctrl is-hover" type="search" placeholder="Search by name"></div></div>
+          <div><label class="lbl" for="x3">Focus + filled</label><div class="box search-box"><svg class="ico" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="x3" class="ctrl is-focus" type="search" value="cream"><button class="clr" type="button" aria-label="Clear search">×</button></div></div>
+          <div><label class="lbl" for="x4">Disabled select</label><div class="box sel"><select id="x4" class="ctrl" disabled><option>Loading…</option></select></div></div>
+        </div></div>
+
+      <div><p class="cap" style="margin-bottom:12px">Pagination · desktop (page 5 of 17) and mobile</p>
+        <nav class="pg" aria-label="Pagination example" style="margin-top:0;justify-content:flex-start"><ol>
+          <li><a href="#components">← Previous</a></li><li class="num"><a href="#components">1</a></li><li class="num"><span aria-hidden="true">…</span></li><li class="num"><a href="#components" class="is-hover">4</a></li><li class="num"><a href="#components" aria-current="page">5</a></li><li class="num"><a href="#components">6</a></li><li class="num"><span aria-hidden="true">…</span></li><li class="num"><a href="#components">17</a></li><li><span class="pos">Page 5 of 17</span></li><li><a href="#components">Next →</a></li>
+        </ol></nav>
+        <p class="muted" style="font-size:14px;margin-top:8px">Below 768px: “← Prev · Page 5 of 17 · Next →” (see catalog mobile frame). Item 4 shows hover.</p></div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:32px">
+        <div><p class="cap" style="margin-bottom:12px">StockBadge</p><div style="display:grid;gap:12px"><span class="stock ok">In stock</span><span class="stock low">Low stock: 4 left</span><span class="stock no">Out of stock</span></div></div>
+        <div><p class="cap" style="margin-bottom:12px">PriceTag · sm / lg</p><div style="display:grid;gap:16px"><p class="price" style="text-align:left">$9.29<s>$9.99</s></p><div class="plg"><span class="now">$7.23</span><s>$8.50</s><span class="badge">−15%</span></div></div></div>
+        <div><p class="cap" style="margin-bottom:12px">RatingStars · sm / md</p><div style="display:grid;gap:16px;justify-items:start"><span class="rate"><span class="stars" style="--r:88%"></span>4.4</span><span class="rate md"><span class="stars" style="--r:88%"></span>4.4<span class="n">(3 reviews)</span></span></div></div>
+      </div>
+
+      <div><p class="cap" style="margin-bottom:12px">ReviewList · empty</p><p class="muted">No reviews yet.</p></div>
+    </div>
+  </div>
+</section>
+
+</div>
+</body>
+</html>
