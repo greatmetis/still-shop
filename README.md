@@ -23,7 +23,7 @@ The project is built in milestones. They are:
 - [x] M0 Test baseline
 - [x] M1 Static catalog
 - [x] M2 Live products
-- [ ] v0.1 early launch (after M2): "coming soon" toolbar, README, GitHub + CI, Vercel
+- [x] v0.1 early launch (after M2): "coming soon" toolbar, README, GitHub + CI, Vercel
 - [ ] M3 Search, category, sort and pages in the URL
 - [ ] M4 Detail page and page transitions
 - [ ] M5 Polish and launch
@@ -31,7 +31,7 @@ The project is built in milestones. They are:
 
 ### What works now
 It’s responsive with dark mode, has an intro animation, is accessible (live regions, focus after a retry), and has 194 tests that CI runs on every push.
-- Static catalog (real products are loaded from the API)” contradicts itself. Try “Product catalog loaded live from the DummyJSON API”
+- Product catalog loaded live from the DummyJSON API
 - Loading and error states & retry
 - Skeletons for loading states
 
