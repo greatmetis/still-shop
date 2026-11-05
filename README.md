@@ -4,9 +4,9 @@
 A quiet product catalogue built with React, TypeScript and Tailwind CSS, using the
 [DummyJSON](https://dummyjson.com/docs/products) products API. It was inspired by the API documentation, and design ideas from chatting with Claude.
 
-The purpose of the project is to learn and practice React and TypeScript fundamental. The static components are built by Claude so that I can focus on the React and TypeScript, and interact with the API.
+The purpose of the project is to learn and practice React and TypeScript fundamentals. The static components are built by Claude so that I can focus on the React and TypeScript, and interact with the API.
 
-In this project, I have built the features step by step, and I only move on to the next while Unit Testing prepared by Claude is passed. For more details of what I have learned, please check the section [Learning Highlights](#learning-highlights).
+In this project, I have built the features step by step, and I only move on to the next once the tests passed. For more details of what I have learned, please check the section [Learning Highlights](#learning-highlights).
 
 ## Run it
 
@@ -24,6 +24,7 @@ The project is built in milestones. They are:
 - [x] M1 Static catalog
 - [x] M2 Live products
 - [x] v0.1 early launch (after M2): "coming soon" toolbar, README, GitHub + CI, Vercel
+- [x] v0.1 early launch (after M2): "coming soon" toolbar, README, GitHub + CI, Vercel
 - [ ] M3 Search, category, sort and pages in the URL
 - [ ] M4 Detail page and page transitions
 - [ ] M5 Polish and launch
@@ -31,7 +32,7 @@ The project is built in milestones. They are:
 
 ### What works now
 It’s responsive with dark mode, has an intro animation, is accessible (live regions, focus after a retry), and has 194 tests that CI runs on every push.
-- Product catalog loaded live from the DummyJSON API
+- Product catalog loaded live from the DummyJSON API.
 - Loading and error states & retry
 - Skeletons for loading states
 
