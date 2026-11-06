@@ -9,13 +9,14 @@ import { ResultCount } from '../components/ResultCount'
 import { SearchBox } from '../components/SearchBox'
 import { SortSelect } from '../components/SortSelect'
 import type { CategoryOption, SortOption } from '../components/types'
-import categoriesJson from '../mocks/categories.json'
 import { toCardProps } from '../mappers/toCardProps'
 import type { Product} from '../api/types'
 import { useProducts } from '../hooks/useProducts'
 import { ErrorState } from '../components/ErrorState'
 import { ProductGridSkeleton } from '../components/ProductGridSkeleton'
 import { EmptyState } from '../components/EmptyState'
+import { useCategories } from '../hooks/useCategories'
+import { toCategoryOption } from '../mappers/toCategoryOption'
 
 const sortOptions: SortOption[] = [
   { value: 'default', label: 'Featured' },
@@ -27,9 +28,6 @@ const sortOptions: SortOption[] = [
   { value: 'title-desc', label: 'Name: Z–A' },
 ]
 
-// The mock JSON has extra fields (url); the filter only needs slug + name.
-const categoryOptions: CategoryOption[] = categoriesJson.map(({ slug, name }) => ({ slug, name }))
-
 // Used by the intro: how long (ms) to wait before the catalog fades in / the cards start to reveal.
 const TOOLBAR_DELAY = '700ms'
 const GRID_DELAY = '1200ms'
@@ -37,6 +35,7 @@ const itemsPerPage = 12
 
 export function HomePage() {
   const useProductsResult = useProducts(); // Get the product load result from useProducts
+  const useCategoriesResult = useCategories(); // Get the category load result from useCategories
   const productHeading = useRef<HTMLHeadingElement>(null);
   const wasRetrying = useRef(useProductsResult.isRetrying);
   const totalProductCount = useProductsResult.data?.total ?? null;
@@ -44,6 +43,9 @@ export function HomePage() {
   const products : Product[] = useProductsResult.data 
   ? useProductsResult.data.products
   : []
+  const categoryOptions: CategoryOption[] = useCategoriesResult.data
+  ? useCategoriesResult.data.map(toCategoryOption)
+  : [];
 
   
   useEffect(()=>{
@@ -119,6 +121,7 @@ export function HomePage() {
                   options={categoryOptions}
                   value={null}
                   disabled
+                  loading={useCategoriesResult.status === "loading"}
                   // TODO(you) 13: write the chosen category to the URL in M3.
                   onChange={() => {}}
                 />

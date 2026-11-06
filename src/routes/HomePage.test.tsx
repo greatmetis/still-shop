@@ -2,6 +2,8 @@ import { screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { renderWithRouter } from '../test/renderWithRouter'
 import { HomePage } from './HomePage'
+import { categoriesSlow } from '../test/handlers'
+import { server } from '../test/server'
 
 describe('HomePage', () => {
   it('shows the hero, toolbar, 12 cards, a 24-product count, and no pagination yet (M3)', async () => {
@@ -47,5 +49,31 @@ describe('HomePage', () => {
     renderWithRouter(<HomePage />)
     expect(await screen.findByRole('option', { name: 'All categories' })).toBeInTheDocument()
     expect(await screen.findByRole('option', { name: 'Beauty' })).toBeInTheDocument()
+  })
+
+  it('keeps the category filter disabled after products and categories load', async () => {
+  renderWithRouter(<HomePage />)
+
+    // 1. Wait for the categories: find the 'Beauty' option
+    expect(await screen.findByRole('option',{name:'Beauty'})).toBeInTheDocument();
+    // 2. Wait for the products: find the cards (role 'article', more than one, so findAllByRole)
+    const cards = await screen.findAllByRole('article')
+    expect(cards).toHaveLength(12)
+
+    // 3. Check the 'Category' combobox is disabled
+    expect(screen.getByRole('combobox',{name:'Category'})).toBeDisabled();
+  });
+
+  it('shows Loading… in the category filter while categories load', async () => {
+  server.use(categoriesSlow(300))
+  renderWithRouter(<HomePage />)
+
+  // Products have arrived, but categories are still waiting on the 300 ms delay
+  await screen.findAllByRole('article')
+  expect(screen.getByRole('option', { name: 'Loading…' })).toBeInTheDocument()
+
+  // The real list replaces the placeholder
+  expect(await screen.findByRole('option', { name: 'Beauty' })).toBeInTheDocument()
+  expect(screen.queryByRole('option', { name: 'Loading…' })).not.toBeInTheDocument()
   })
 })

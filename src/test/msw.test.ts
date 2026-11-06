@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { API, productsEmpty, productsError, productsNetworkError } from './handlers'
+import { API, categoriesError, productsEmpty, productsError, productsNetworkError } from './handlers'
 import { server } from './server'
 
 describe('MSW test setup', () => {
@@ -29,5 +29,17 @@ describe('MSW test setup', () => {
   it('lets a test switch to a network failure (fetch rejects, no status)', async () => {
     server.use(productsNetworkError())
     await expect(fetch(`${API}/products`)).rejects.toThrow(TypeError)
+  })
+
+  it('answers the categories list with the 24 mock categories', async () => {
+    const res = await fetch(`${API}/products/categories`)
+    const categories = await res.json()
+    expect(categories).toHaveLength(24)
+    expect(categories[0]).toEqual({ slug: 'beauty', name: 'Beauty', url: `${API}/products/category/beauty` })
+  })
+
+  it('lets a test switch the categories list to an error', async () => {
+    server.use(categoriesError(500))
+    expect((await fetch(`${API}/products/categories`)).status).toBe(500)
   })
 })
