@@ -6,11 +6,18 @@ import productsJson from '../mocks/products.json'
 export const API = API_BASE
 const productsUrl = `${API_BASE}/products`
 const categoriesUrl = `${API_BASE}/products/categories`
+const singleCategoryUrl = `${API_BASE}/products/category/:slug`;
 
 // Default handlers shared by all tests: 24 mock products and 24 mock categories.
 export const handlers = [
   http.get(productsUrl, () => HttpResponse.json(productsJson)),
   http.get(categoriesUrl, () => HttpResponse.json(categoriesJson)),
+  http.get(singleCategoryUrl, ({ params }) => {
+    // 1. Keep the products whose category matches the slug
+    const filterdProducts = productsJson.products.filter(p=>p.category === params.slug);
+
+    return HttpResponse.json({ products:filterdProducts, total: filterdProducts.length, skip: productsJson.skip, limit:  filterdProducts.length})
+    })
 ]
 
 // Ready-made overrides for one test. Use them with `server.use(...)`, e.g.

@@ -42,4 +42,18 @@ describe('MSW test setup', () => {
     server.use(categoriesError(500))
     expect((await fetch(`${API}/products/categories`)).status).toBe(500)
   })
+
+  it('fetch smartphones', async () => {
+    const res = await fetch(`${API}/products/category/smartphones`);
+    const foundProducts = await res.json();
+    expect(foundProducts.products).toHaveLength(8);
+    expect(foundProducts.total).toBe(8)
+  })
+
+    it('fetch laptops', async () => {
+    const res = await fetch(`${API}/products/category/laptops`);
+    const foundProducts = await res.json();
+    expect(foundProducts.products).toHaveLength(5);
+    expect(foundProducts.total).toBe(5)
+  })
 })
