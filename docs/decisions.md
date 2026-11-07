@@ -2,6 +2,13 @@
 
 Technical decisions, newest first. Each one says what was decided, why, and what else was considered.
 
+## 2026-11-07: security headers
+
+`vercel.json` sets a Content-Security-Policy, `X-Content-Type-Options` and `Referrer-Policy` on all routes.
+- **Why:** only same-origin scripts and styles can run; the API and images are limited to DummyJSON hosts.
+- **Not added:** `X-Frame-Options`, `Permissions-Policy`, explicit `style-src`, `report-to`.
+- **Limit:** the policy only applies on Vercel, so it is checked in the browser on the live site.
+
 ## 2026-11-03: v0.1 ships unfinished features as visibly unfinished
 
 The site goes live after M2 as v0.1, before search, filters and product pages exist.
