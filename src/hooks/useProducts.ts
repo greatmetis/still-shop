@@ -35,9 +35,16 @@ export type UseProductsResult = ProductsState & {
  * You'll learn: useEffect, dependency arrays, cleanup, race conditions, why StrictMode runs effects twice.
  * Resources: https://react.dev/learn/synchronizing-with-effects
  *            https://react.dev/learn/you-might-not-need-an-effect
+ *
+ * TODO 10 (part 3): take a `category` (null = All categories) and pass it to getProducts.
+ * - When the category changes, the effect must run again and load the new category.
+ * - Rename `_category` to `category` when you use it (the underscore only quiets "unused" warnings).
+ *
+ * How to start: in useProducts.test.tsx change the second `describe.skip` to `describe`. Finish part 2 first.
+ * Resource: https://react.dev/learn/lifecycle-of-reactive-effects
  */
 //* LEARNING NOTE: Use try/catch here so the page can show status.
-export function useProducts(): UseProductsResult {
+export function useProducts(category: string | null = null): UseProductsResult {
   const [numberToTry, setNumberToTry] = useState(0);
   const [state, setState] = useState<ProductsState>({
     status:"loading",
@@ -56,7 +63,7 @@ export function useProducts(): UseProductsResult {
     const controller = new AbortController();
     async function fetchProducts(){
       try{
-        const response = await getProducts({signal:controller.signal});
+        const response = await getProducts({signal:controller.signal, category:category});
         setState({status: 'success', data:response, error: null });
         setIsRetrying(false);
       }catch(error){
@@ -74,7 +81,7 @@ export function useProducts(): UseProductsResult {
     fetchProducts();
     return () => controller.abort();
     
-  },[numberToTry]);
+  },[numberToTry,category]);
 
   return {...state,retry,isRetrying};
 }

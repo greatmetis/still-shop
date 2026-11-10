@@ -49,5 +49,6 @@ It’s responsive with dark mode, has an intro animation, is accessible (live re
 - Separating the category fetch, hook and mapper, so each piece has one job and can be tested on its own.
 - `useDebounce`: a custom hook built with `setTimeout` and effect cleanup. Every value an effect uses belongs in its dependency array.
 - Filters in the URL: `parseParams` treats the URL as untrusted input, narrows strings to a union type and falls back to safe defaults.
+- `encodeURIComponent` makes a value safe to insert as a part of URL. It replaces special characters with encoded forms so they're treated as data.
 
 More detail: [Learning while building (Notion)](https://app.notion.com/p/metis-teng/Learning-while-building-portfolio-2846d71d7ad1800ebfc8c57b64d8cc08)

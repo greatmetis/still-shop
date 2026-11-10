@@ -31,10 +31,26 @@ export class ApiError extends Error {
  * You'll learn: fetch, response.ok, async/await, error classes, AbortController.
  * Resources: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
  *            https://developer.mozilla.org/en-US/docs/Web/API/AbortController
+ *
+ * TODO 10 (part 2): when `category` is set, fetch only that category.
+ *
+ *   getProducts({ category: 'laptops' })  → GET `${API_BASE}/products/category/laptops?limit=0`
+ *   getProducts() or category null        → GET `${API_BASE}/products?limit=0`   (as now)
+ *
+ * - The category comes from the URL, so anyone can type anything, even a "/". Encode it with
+ *   encodeURIComponent before putting it into the path.
+ *
+ * How to start: in products.test.ts change the second `describe.skip` to `describe`.
+ * Resource: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
  */
 
-export async function getProducts({ signal }: { signal?: AbortSignal } = {}): Promise<ProductsResponse> {
-  const response = await fetch(`${API_BASE}/products?limit=0`,{
+export async function getProducts({ signal,category }: { signal?: AbortSignal; category?: string | null } = {}): Promise<ProductsResponse> {
+  // check category to decide which api is going to be called
+  const api : string = category 
+  ? `${API_BASE}/products/category/${encodeURIComponent(category)}?limit=0` 
+  : `${API_BASE}/products?limit=0`
+  
+  const response = await fetch(api,{
     signal: signal
   });
     //Throw error when response doesn't have ok

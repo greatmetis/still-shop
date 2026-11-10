@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { API, productsError, productsNetworkError, productsSlow } from '../test/handlers'
 import { server } from '../test/server'
 import { ApiError, getProducts } from './products'
@@ -55,5 +55,48 @@ describe('getProducts', () => {
     const promise = getProducts()
     await expect(promise).rejects.toBeInstanceOf(TypeError)
     await expect(promise).rejects.not.toBeInstanceOf(ApiError)
+  })
+})
+
+describe('getProducts with a category (TODO 10)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  // Replaces fetch for one test, so the test can see exactly which URL was asked for.
+  function spyOnFetch() {
+    return vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ products: [], total: 0, skip: 0, limit: 0 }))
+  }
+
+  it('returns only the products in that category', async () => {
+    const response = await getProducts({ category: 'laptops' })
+    expect(response.total).toBe(5)
+    expect(response.products.every((product) => product.category === 'laptops')).toBe(true)
+  })
+
+  it('asks for all products in the category with limit=0', async () => {
+    const fetchSpy = spyOnFetch()
+    await getProducts({ category: 'laptops' })
+    expect(fetchSpy.mock.calls[0][0]).toBe(`${API}/products/category/laptops?limit=0`)
+  })
+
+  it('asks for every product when the category is null', async () => {
+    const fetchSpy = spyOnFetch()
+    await getProducts({ category: null })
+    expect(fetchSpy.mock.calls[0][0]).toBe(`${API}/products?limit=0`)
+  })
+
+  it('encodes the category, so text from the URL cannot change the path', async () => {
+    const fetchSpy = spyOnFetch()
+    await getProducts({ category: '../users' })
+    expect(fetchSpy.mock.calls[0][0]).toBe(`${API}/products/category/..%2Fusers?limit=0`)
+  })
+
+  it('still passes the signal on, so the request can be cancelled', async () => {
+    const controller = new AbortController()
+    controller.abort()
+    await expect(getProducts({ category: 'laptops', signal: controller.signal })).rejects.toMatchObject({
+      name: 'AbortError',
+    })
   })
 })

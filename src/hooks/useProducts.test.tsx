@@ -120,3 +120,47 @@ describe('useProducts', () => {
     await waitFor(() => expect(result.current.status).toBe('success'))
   })
 })
+
+describe('useProducts with a category (TODO 10)', () => {
+  it('loads only the chosen category', async () => {
+    const { result } = renderHook(() => useProducts('laptops'))
+
+    await waitFor(() => expect(result.current.status).toBe('success'))
+    expect(result.current.data?.products).toHaveLength(5)
+  })
+
+  it('loads again when the category changes', async () => {
+    const { result, rerender } = renderHook(({ category }) => useProducts(category), {
+      initialProps: { category: 'laptops' as string | null },
+    })
+    await waitFor(() => expect(result.current.data?.products).toHaveLength(5))
+
+    rerender({ category: 'smartphones' })
+    await waitFor(() => expect(result.current.data?.products).toHaveLength(8))
+
+    rerender({ category: null })
+    await waitFor(() => expect(result.current.data?.products).toHaveLength(24))
+  })
+
+  it('cancels the old request when the category changes, so a late answer cannot win', async () => {
+    const signals: AbortSignal[] = []
+    server.use(
+      http.get(`${API}/products/category/:slug`, async ({ request, params }) => {
+        signals.push(request.signal)
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        const products = productsJson.products.filter((product) => product.category === params.slug)
+        return HttpResponse.json({ products, total: products.length, skip: 0, limit: products.length })
+      }),
+    )
+    const { result, rerender } = renderHook(({ category }) => useProducts(category), {
+      initialProps: { category: 'laptops' },
+    })
+    await waitFor(() => expect(signals).toHaveLength(1))
+
+    rerender({ category: 'smartphones' })
+    expect(signals[0].aborted).toBe(true)
+
+    await waitFor(() => expect(result.current.status).toBe('success'))
+    expect(result.current.data?.products).toHaveLength(8)
+  })
+})
