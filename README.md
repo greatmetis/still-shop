@@ -24,7 +24,7 @@ The project is built in milestones. They are:
 - [x] M1 Static catalog
 - [x] M2 Live products
 - [x] v0.1 early launch (after M2): "coming soon" toolbar, README, GitHub + CI, Vercel
-- [ ] M3 Search, category, sort and pages in the URL
+- [ ] M3 Search, category, sort and pages in the URL (in progress: categories, debounce and URL parsing done; filtering, sorting and wiring next)
 - [ ] M4 Detail page and page transitions
 - [ ] M5 Polish and launch
 - [ ] M6 (optional) TanStack Query
@@ -34,6 +34,7 @@ It’s responsive with dark mode, has an intro animation, is accessible (live re
 - Product catalog loaded live from the DummyJSON API.
 - Loading and error states & retry
 - Skeletons for loading states
+- Category list loaded live from the API (the filter switches on later in M3)
 
 ### Upcoming features
 - Search and filters
@@ -45,5 +46,8 @@ It’s responsive with dark mode, has an intro animation, is accessible (live re
 - `fetch` doesn't throw on a 404 or 500: I check `response.ok` and throw a typed `ApiError`.
 - Cancelling requests with `AbortController` in the `useEffect` cleanup, so a late answer can't overwrite state.
 - Accessibility: live regions for result counts, and moving focus after a retry.
+- Separating the category fetch, hook and mapper, so each piece has one job and can be tested on its own.
+- `useDebounce`: a custom hook built with `setTimeout` and effect cleanup. Every value an effect uses belongs in its dependency array.
+- Filters in the URL: `parseParams` treats the URL as untrusted input, narrows strings to a union type and falls back to safe defaults.
 
 More detail: [Learning while building (Notion)](https://app.notion.com/p/metis-teng/Learning-while-building-portfolio-2846d71d7ad1800ebfc8c57b64d8cc08)
