@@ -8,7 +8,7 @@ const itemBase =
   'min-h-11 min-w-11 items-center justify-center px-3 text-small font-medium tabular-nums transition-colors duration-(--duration-fast) ease-soft'
 const itemClass = `inline-flex ${itemBase}`
 
-export function Pagination({ currentPage, totalPages, hrefForPage, label = 'Pagination' }: PaginationProps) {
+export function Pagination({ currentPage, totalPages, hrefForPage, label = 'Pagination', onPageChange }: PaginationProps) {
   if (totalPages <= 1) return null
 
   const items = getPageItems(currentPage, totalPages)
@@ -20,7 +20,10 @@ export function Pagination({ currentPage, totalPages, hrefForPage, label = 'Pagi
       <ol className="flex items-center justify-between gap-1 md:justify-center">
         <li>
           {hasPrevious ? (
-            <Link to={hrefForPage(currentPage - 1)} rel="prev" className={`${itemClass} hover:bg-surface`}>
+            <Link 
+            to={hrefForPage(currentPage - 1)} rel="prev" className={`${itemClass} hover:bg-surface`}
+            onClick={onPageChange}
+            >
               <span aria-hidden="true">←&nbsp;</span>Previous
             </Link>
           ) : (
@@ -45,6 +48,7 @@ export function Pagination({ currentPage, totalPages, hrefForPage, label = 'Pagi
             <li key={item} className="hidden md:block">
               <Link
                 to={hrefForPage(item)}
+                onClick={onPageChange}
                 aria-current={item === currentPage ? 'page' : undefined}
                 aria-label={`Page ${item}`}
                 className={`${itemClass} ${item === currentPage ? 'bg-primary text-on-primary' : 'hover:bg-surface'}`}
@@ -57,7 +61,10 @@ export function Pagination({ currentPage, totalPages, hrefForPage, label = 'Pagi
 
         <li>
           {hasNext ? (
-            <Link to={hrefForPage(currentPage + 1)} rel="next" className={`${itemClass} hover:bg-surface`}>
+            <Link 
+            to={hrefForPage(currentPage + 1)} rel="next" className={`${itemClass} hover:bg-surface`}
+            onClick={onPageChange}
+            >
               Next<span aria-hidden="true">&nbsp;→</span>
             </Link>
           ) : (

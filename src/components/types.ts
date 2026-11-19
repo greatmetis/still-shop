@@ -181,7 +181,8 @@ export interface PaginationProps {
   currentPage: number
   totalPages: number
   hrefForPage: (page: number) => string
-  label?: string
+  label?: string,
+  onPageChange? : () => void
 }
 
 // ---- 7.17 - 7.20 States, Wordmark, Hero ------------------------------------

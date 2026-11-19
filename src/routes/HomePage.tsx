@@ -67,7 +67,6 @@ export function HomePage() {
   const totalProductCount = matching.length;
   const pages = totalPages(totalProductCount)
   const currentPage = clampPage(params.page,pages);
-  const previousPage = useRef<number | null >(currentPage);
   const products = paginate(sorted,currentPage, itemsPerPage);
 
   const useCategoriesResult = useCategories(); // Get the category load result from useCategories
@@ -92,18 +91,16 @@ export function HomePage() {
   //* focus product heading effect AFTER retry button is clicked with success result*//
   useEffect(()=>{
     if (wasRetrying.current && useProductsResult.status === "success") {
-      productHeading.current?.focus();
+      focusProductHeading();
     };
     wasRetrying.current = useProductsResult.isRetrying;
   },[useProductsResult.status, useProductsResult.isRetrying]);
   
-  //* focus product heading effect WHEN page is changed*//
-  useEffect(()=>{
-    if(currentPage != previousPage.current) {
-      previousPage.current = currentPage;
-      productHeading.current?.focus();
-    }
-  },[currentPage])
+  
+  //* focus product heading *//
+  function focusProductHeading(){
+    productHeading.current?.focus();
+  }
 
   //START Animation Setup
   // TODO(you) 19: decide "once per session" with sessionStorage. For now the intro always plays.
@@ -129,8 +126,9 @@ export function HomePage() {
                   {/* v0.1: cards are not links until the product page exists. TODO(you) M4: remove `linked={false}`. */}
                   <ProductGrid products={products.map(toCardProps)} label="Products" linked={false} />
                 </div>
-                <span className="block my-8 border border-border"></span>
-                    <Pagination currentPage={currentPage} totalPages={pages} hrefForPage={(p)=> hrefForPage(params,p)}/>
+                <div className="mt-12">
+                    <Pagination currentPage={currentPage} totalPages={pages} hrefForPage={(p)=> hrefForPage(params,p)} onPageChange={focusProductHeading}/>
+                </div>
               </>    
   }
   function clearAllState(){
