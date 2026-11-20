@@ -58,7 +58,13 @@ export function HomePage() {
   const category : string = params.category ?? '';
   const sort : SortValue = params.sort;
   const [searchQuery,setSearchQuery] = useState(params.q);
-  
+  const [prevUrlQ, setPrevUrlQ] = useState(params.q);
+  // store current params query as an reactive variable so that we can compare it with params.q when rendering the component. make params query matches search query
+  if(prevUrlQ !== params.q){
+    setPrevUrlQ(params.q);
+    setSearchQuery(params.q)
+  }
+
   const useProductsResult = useProducts(params.category) // Get the product load result from useProducts
   const allProducts = useProductsResult.data?.products ?? []
   const matching = filterProducts(allProducts,params.q) // filterProducts with params.q
@@ -77,16 +83,18 @@ export function HomePage() {
   : [];
   
   //* search effect *//
-  const debouncedQ = useDebounce(searchQuery,300);
-  const oldSearchQ = useRef(params.q);
+  const debouncedQ = useDebounce(searchQuery,300); // the value users typing from searchbox
+  
   useEffect(()=>{
-    if(oldSearchQ.current === debouncedQ) return;
+    if(searchQuery !== debouncedQ) return; // return early if still typing
+    if(params.q === debouncedQ) return; // return if URL already matches
+    
     setSearchParams(
       serializeParams({...params,q: debouncedQ,page:1}),
       { replace: true }
     )
-    oldSearchQ.current = debouncedQ;
-  },[debouncedQ,params,setSearchParams])
+
+  },[debouncedQ,params,setSearchParams,searchQuery])
 
   //* focus product heading effect AFTER retry button is clicked with success result*//
   useEffect(()=>{
@@ -195,7 +203,7 @@ export function HomePage() {
               className={`mt-6 mb-6 ${playIntro ? 'intro-fade' : ''}`}
               style={toolbarStyle}
             >
-              { useProductsResult.status !== "error" && <ResultCount count={totalProductCount} query={params.q} categoryName={
+              { useProductsResult.status !== "error" && <ResultCount count={useProductsResult.status === "loading" ? null : totalProductCount} query={params.q} categoryName={
                 category.slice(0,1).toUpperCase() + category.slice(1).toLowerCase()
                 } onClearFilters={clearAllState}/>}
             </div>
