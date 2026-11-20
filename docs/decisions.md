@@ -2,6 +2,20 @@
 
 Technical decisions, newest first. Each one says what was decided, why, and what else was considered.
 
+## 2026-11-21: filters in the URL (M3)
+
+- **The URL is the source of truth for search, category, sort and page.** Everything shown is derived from it
+  during render; changing a filter writes the URL and resets to page 1.
+- **Focus moves to the products heading only from a pagination click** (`onPageChange`), not from an effect on
+  page changes, because a page reset from typing, sorting or a shared link must not move focus. Alternative:
+  an effect on page changes with a guard on where the change came from.
+- **The search box syncs from `?q` by adjusting state during render** (it keeps the previous URL value). The
+  debounced URL write is skipped while typing is pending or when the URL already matches, and uses `replace`.
+  Alternatives: a `key` remount (loses focus) or a sync effect (extra render, flicker).
+- **The result count shows "Loading…" while products load**, not "0 products".
+- Follow-ups: skip the pagination focus on modifier or middle clicks and on the current-page link; make the search
+  effect depend on `params.q` instead of the whole `params` object; tidy `PaginationProps` formatting.
+
 ## 2026-11-07: security headers
 
 `vercel.json` sets a Content-Security-Policy, `X-Content-Type-Options` and `Referrer-Policy` on all routes.
