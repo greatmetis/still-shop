@@ -24,20 +24,20 @@ The project is built in milestones. They are:
 - [x] M1 Static catalog
 - [x] M2 Live products
 - [x] v0.1 early launch (after M2): "coming soon" toolbar, README, GitHub + CI, Vercel
-- [ ] M3 Search, category, sort and pages in the URL (in progress: categories, debounce and URL parsing done; filtering, sorting and wiring next)
+- [x] M3 Search, category, sort and pages in the URL
 - [ ] M4 Detail page and page transitions
 - [ ] M5 Polish and launch
 - [ ] M6 (optional) TanStack Query
 
 ### What works now
-It’s responsive with dark mode, has an intro animation, is accessible (live regions, focus after a retry), and has over 200 tests that CI runs on every push.
+It’s responsive with dark mode, has an intro animation, is accessible (live regions, focus after a retry or a page change), and has over 300 tests that CI runs on every push.
 - Product catalog loaded live from the DummyJSON API.
 - Loading and error states & retry
 - Skeletons for loading states
-- Category list loaded live from the API (the filter switches on later in M3)
+- Search (debounced), category filter, sort and pagination, all kept in the URL: links can be shared, and Back and Forward work
+- "Clear filters" and an empty state when nothing matches
 
 ### Upcoming features
-- Search and filters
 - Product detail pages with transitions
 - Maybe TanStack Query for data fetching
 
@@ -50,5 +50,8 @@ It’s responsive with dark mode, has an intro animation, is accessible (live re
 - `useDebounce`: a custom hook built with `setTimeout` and effect cleanup. Every value an effect uses belongs in its dependency array.
 - Filters in the URL: `parseParams` treats the URL as untrusted input, narrows strings to a union type and falls back to safe defaults.
 - `encodeURIComponent` makes a value safe to insert as a part of URL. It replaces special characters with encoded forms so they're treated as data.
+- The URL as the single source of truth: everything on the page is derived from it during render, not copied into state.
+- Keeping a search box in sync with the URL both ways: adjusting state during render when the URL changes, and only writing to the URL once typing has settled.
+- Moving focus from the event that caused it (a pagination click), not from an effect, so typing or sorting never steals focus.
 
 More detail: [Learning while building (Notion)](https://app.notion.com/p/metis-teng/Learning-while-building-portfolio-2846d71d7ad1800ebfc8c57b64d8cc08)
